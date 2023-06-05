@@ -1,0 +1,10 @@
+*.log
+*.pot
+#python and django files
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+local_settings.py
+db.sqlite3
+
