@@ -1,0 +1,64 @@
+{
+  "acceptedFileTypes": [
+    ".png",
+    ".jpeg",
+    ".jpg",
+    ".bmp",
+    ".heic",
+    ".gif",
+    ".gifv",
+    ".webp",
+    ".tiff"
+  ],
+  "availableModifications": [
+    {
+      "name": "resize",
+      "params": [
+        {
+          "name": "width",
+          "type": "number"
+        },
+        {
+          "name": "height",
+          "type": "number"
+        }
+      ],
+      "endpoint": "/resize"
+    },
+    {
+      "name": "compress",
+      "params": [
+        {
+          "name": "rate",
+          "type": "number"
+        }
+      ],
+      "endpoint": "/compress"
+    },
+    {
+      "name": "enhance",
+      "params": [],
+      "endpoint": "/enhance"
+    },
+    {
+      "name": "changeFormat",
+      "params": [
+        {
+          "name": "resultFormat",
+          "type": [
+            "png",
+            "jpeg",
+            "jpg",
+            "bmp",
+            "heic",
+            "gif",
+            "gifv",
+            "webp",
+            "tiff"
+          ]
+        }
+      ],
+      "endpoint": "/change_format"
+    }
+  ]
+}

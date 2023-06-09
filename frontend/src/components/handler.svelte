@@ -1,14 +1,12 @@
 <script lang="ts">
-  // TODO:
-  const acceptedTypes = "image/*";
-
-  // const operations = [];
+  export let acceptedFileTypes: Array<string>;
+  export let availableModifications: Array<string>;
 </script>
 
 <form class="handler">
   <!-- TODO: Implement a custom-styled file input button (show filename) -->
   <!-- https://jsfiddle.net/4cwpLvae/ -->
-  <input type="file" accept={acceptedTypes} />
+  <input type="file" accept={acceptedFileTypes.join(",")} />
 
   <label for="select-operation">Choose modifications:</label>
   <select id="select-operation">
