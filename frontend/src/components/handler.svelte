@@ -1,6 +1,6 @@
 <script lang="ts">
   export let acceptedFileTypes: Array<string>;
-  export let availableModifications: Array<string>;
+  export let availableModifications: Array<any>;
 </script>
 
 <form class="handler">
@@ -10,7 +10,9 @@
 
   <label for="select-operation">Choose modifications:</label>
   <select id="select-operation">
-    <option value="compress">Compress</option>
+    {#each availableModifications as modif}
+      <option value={modif.name}>{modif.display}</option>
+    {/each}
   </select>
 
   <!-- TODO: A plus sign on the right of the selection -->

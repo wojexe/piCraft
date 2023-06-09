@@ -13,6 +13,7 @@
   "availableModifications": [
     {
       "name": "resize",
+      "display": "Resize",
       "params": [
         {
           "name": "width",
@@ -27,6 +28,7 @@
     },
     {
       "name": "compress",
+      "display": "Compress",
       "params": [
         {
           "name": "rate",
@@ -37,11 +39,13 @@
     },
     {
       "name": "enhance",
+      "display": "Enhance",
       "params": [],
       "endpoint": "/enhance"
     },
     {
       "name": "changeFormat",
+      "display": "Change format",
       "params": [
         {
           "name": "resultFormat",
