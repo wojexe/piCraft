@@ -1,6 +1,5 @@
 <script lang="ts">
-  export let acceptedFileTypes: Array<string>;
-  export let availableModifications: Array<any>;
+  import { acceptedFileTypes, availableModifications } from "$lib/available.json";
 </script>
 
 <form class="handler">
