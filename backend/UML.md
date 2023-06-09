@@ -27,7 +27,7 @@ classDiagram
         -generateURL imgUrl
 
         +add_operation(Operation operation)
-        +loadImage(String str, ImageClass img)
+        +loadImage(Imagetype image)
         +processImage(ImageClass img)
         +urlSave(ImageClass img)
     }
@@ -41,7 +41,7 @@ classDiagram
 
     }
     class ImageLoader{
-        +loadImage64(String base64code)
+        +loadImage(Imagetype image)
     }
 
     class Operation{
