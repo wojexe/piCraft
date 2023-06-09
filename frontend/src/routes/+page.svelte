@@ -1,6 +1,7 @@
 <script lang="ts">
-  // Svelecte?
-  console.log("hello world!");
+  import Intro from "../components/intro.svelte";
+  import Handler from "../components/handler.svelte";
 </script>
 
-<h1>Hello FRONTEND!</h1>
+<Intro />
+<Handler />
