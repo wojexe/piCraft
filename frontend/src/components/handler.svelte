@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { acceptedFileTypes, availableModifications } from "$lib/available.json";
+  import { PiCraftAPI } from "$lib/api";
+
+  const acceptedFileTypes = PiCraftAPI.acceptedFileTypes;
+  const availableModifications = PiCraftAPI.availableModifications;
 </script>
 
 <form class="handler">
