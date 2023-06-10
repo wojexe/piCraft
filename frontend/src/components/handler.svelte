@@ -3,25 +3,52 @@
 
   const acceptedFileTypes = PiCraftAPI.acceptedFileTypes;
   const availableModifications = PiCraftAPI.availableModifications;
+
+  let selectedModification: any;
+
+  // let commitedModitications: 
+
+  $: console.log(selectedModification);
 </script>
 
 <form class="handler">
   <!-- TODO: Implement a custom-styled file input button (show filename) -->
   <!-- https://jsfiddle.net/4cwpLvae/ -->
-  <input type="file" accept={acceptedFileTypes.join(",")} />
+  <div class="frag">
+    <label for="file-picker" class="subsection">Pick your image:</label>
+    <input id="file-picker" type="file" accept={acceptedFileTypes.join(",")} />
+  </div>
 
-  <label for="select-operation">Choose modifications:</label>
-  <select id="select-operation">
-    {#each availableModifications as modif}
-      <option value={modif.name}>{modif.display}</option>
-    {/each}
-  </select>
+  <div class="frag">
+    <label for="select-modification" class="subsection">Choose modifications:</label>
+    <select id="select-modification" bind:value={selectedModification}>
+      {#each availableModifications as modif}
+        <option value={modif}>{modif.display}</option>
+      {/each}
+    </select>
+    {#if selectedModification != null && selectedModification.params.length > 0}
+      <div class="modificationParams">
+        {#each selectedModification?.params as param}
+          <div class="modificationParam">
+            <label for={`param${param.name}`}>{param.name}</label>
+            <input id={`param${param.name}`} type={param.type} />
+          </div>
+        {/each}
+      </div>
+    {/if}
+
+    <input type="button" value="+" />
+  </div>
 
   <!-- TODO: A plus sign on the right of the selection -->
 
   <!-- TODO: A list of already chosen modifications -->
 
-  <input type="submit" value="Process image" />
+  <div class="frag">
+    <span class="subsection">Picked modifications:</span>
+  </div>
+
+  <input id="submit-form" type="submit" value="Process image" />
 </form>
 
 <style lang="scss">
@@ -36,5 +63,46 @@
     border-radius: 2em;
 
     background-color: var(--card-background);
+
+    .frag {
+      display: flex;
+      flex-direction: column;
+      place-items: center;
+      gap: 0.5rem;
+
+      width: 100%;
+    }
+
+    .subsection {
+      align-self: flex-start;
+      font-size: 1.2em;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .modificationParams {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      justify-content: space-around;
+      gap: 1rem;
+
+      .modificationParam {
+        display: flex;
+        flex-direction: column;
+        label {
+          font-size: 0.8em;
+          text-transform: capitalize;
+          font-weight: 500;
+        }
+        input {
+          width: 12ch;
+          padding: 0.5ch 1ch;
+          border: none;
+
+          border-radius: 1rem;
+        }
+      }
+    }
   }
 </style>
