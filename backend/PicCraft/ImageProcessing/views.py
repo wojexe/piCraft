@@ -36,8 +36,28 @@ class Resize(APIView):
 
 
 class Compress(APIView):
-    def post(self, request):
-        return render(request, 'index.html')
+    parser_classes = [MultiPartParser]
+    def post(self, request, *args, **kwargs):
+        try:
+            # todo: more validation data?
+            # todo: logic for compressing
+            file_serializer = PhotoSerializer(data=request.data)
+            name = request.data['name']
+            rate = request.data['rate']
+
+            print(request.data.get('file'))
+            if file_serializer.is_valid() and name == 'compress' and 0 <= int(rate) <= 100 and  imghdr.what(file_serializer.validated_data['file']) in LEGAL_FORMATS:
+                instance=file_serializer.save()
+                s=open(instance.file.path, 'rb')
+                resp=FileResponse(s)
+                #to do check response Content-Type
+                # resp.set_headers({'Content-Type': 'multipart/form-data'})
+                # resp['Content-Type'] = 'multipart/form-data'
+                return resp
+            else:
+                return Response(file_serializer.errors, status=400)
+        except Exception as e:
+            return Response(str(e), status=400)
 
 
 class Enhance(APIView):
