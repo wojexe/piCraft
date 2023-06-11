@@ -7,6 +7,7 @@ from .serializer import PhotoSerializer
 from .models import Image as ImageClass
 import imghdr
 from django.http import FileResponse
+from . import utils as us
 
 # Create your views here.
 LEGAL_FORMATS = ['jpg', 'jpeg', 'png', 'gifv', 'heic', 'gif', 'tiff', 'bmp', 'webp']
@@ -33,7 +34,6 @@ class Resize(APIView):
                 # to do check response Content-Type
                 # resp.set_headers({'Content-Type': 'multipart/form-data'})
                 # resp['Content-Type'] = 'multipart/form-data'
-
                 return resp
             else:
                 return Response(file_serializer.errors, status=400)
@@ -77,7 +77,8 @@ class Enhance(APIView):
             # todo: logic for Enhancing
             file_serializer = PhotoSerializer(data=request.data)
             name = request.data['name']
-            if file_serializer.is_valid() and name == 'enhance'  and imghdr.what(file_serializer.validated_data['file']) in LEGAL_FORMATS:
+            if file_serializer.is_valid() and name == 'enhance' and imghdr.what(
+                    file_serializer.validated_data['file']) in LEGAL_FORMATS:
                 instance = file_serializer.save()
                 s = open(instance.file.path, 'rb')
                 resp = FileResponse(s)
@@ -101,7 +102,9 @@ class ChangeFormat(APIView):
             # todo: logic for ChangingFormat
             file_serializer = PhotoSerializer(data=request.data)
             name = request.data['name']
-            if file_serializer.is_valid() and name == 'enhance'  and imghdr.what(file_serializer.validated_data['file']) in LEGAL_FORMATS:
+            format_image = request.data['format']
+            if file_serializer.is_valid() and name == 'enhance' and imghdr.what(
+                    file_serializer.validated_data['file']) in LEGAL_FORMATS and format_image in LEGAL_FORMATS:
                 instance = file_serializer.save()
                 s = open(instance.file.path, 'rb')
                 resp = FileResponse(s)
@@ -115,11 +118,35 @@ class ChangeFormat(APIView):
         except Exception as e:
             return Response(str(e), status=400)
 
-class Combine(APIView):
-    def post(self, request):
-        return render(request, 'index.html')
 
-#image to PIL object
+class Combine(APIView):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            # todo: more validation data?
+            # todo: logic for ChangingFormat
+            file_serializer = PhotoSerializer(data=request.data)
+            name = request.data['name']
+            operations = request.data['operations']
+
+            if file_serializer.is_valid() and name == 'enhance' and imghdr.what(
+                    file_serializer.validated_data['file']) in LEGAL_FORMATS:
+                instance = file_serializer.save()
+                s = open(instance.file.path, 'rb')
+                resp = FileResponse(s)
+                # to do check response Content-Type
+                # resp.set_headers({'Content-Type': 'multipart/form-data'})
+                # resp['Content-Type'] = 'multipart/form-data'
+
+                return resp
+            else:
+                return Response(file_serializer.errors, status=400)
+        except Exception as e:
+            return Response(str(e), status=400)
+
+# image to PIL object
+# instance = file_serializer.save()
 # a=ImageClass.objects.get(file=instance.file)
 # im=Image.open(a.file.path)
 # im.show()
