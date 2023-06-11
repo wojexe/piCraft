@@ -1,21 +1,34 @@
 <script lang="ts">
   import { PiCraftAPI } from "$lib/api";
+  import { tick } from "svelte";
 
   const acceptedFileTypes = PiCraftAPI.acceptedFileTypes;
   const availableModifications = PiCraftAPI.availableModifications;
 
-  let selectedModification: any;
+  let selectedModification: PiCraftAPI.Modification | null = availableModifications[0];
 
-  // let commitedModitications: 
+  let commitedModitications: Array<PiCraftAPI.Modification> = [];
 
-  $: console.log(selectedModification);
+  $: console.log(commitedModitications);
+
+  const addModification = async () => {
+    if (selectedModification == null) return;
+
+    commitedModitications.push(selectedModification);
+    commitedModitications = commitedModitications; // Trigger change
+
+    // Reset the inputs
+    selectedModification = null;
+    await tick();
+    selectedModification = availableModifications[0];
+  };
 </script>
 
 <form class="handler">
   <!-- TODO: Implement a custom-styled file input button (show filename) -->
   <!-- https://jsfiddle.net/4cwpLvae/ -->
   <div class="frag">
-    <label for="file-picker" class="subsection">Pick your image:</label>
+    <label for="file-picker" class="subsection">Select your image:</label>
     <input id="file-picker" type="file" accept={acceptedFileTypes.join(",")} />
   </div>
 
@@ -30,22 +43,21 @@
       <div class="modificationParams">
         {#each selectedModification?.params as param}
           <div class="modificationParam">
-            <label for={`param${param.name}`}>{param.name}</label>
+            <label for={`param${param.name}`}>{param.display}</label>
             <input id={`param${param.name}`} type={param.type} />
           </div>
         {/each}
       </div>
     {/if}
 
-    <input type="button" value="+" />
+    <input type="button" value="+" on:click|preventDefault={() => addModification()} />
   </div>
 
-  <!-- TODO: A plus sign on the right of the selection -->
-
-  <!-- TODO: A list of already chosen modifications -->
-
   <div class="frag">
-    <span class="subsection">Picked modifications:</span>
+    <span class="subsection">Selected modifications:</span>
+    {#each commitedModitications as modif}
+      {modif.display}<br />
+    {/each}
   </div>
 
   <input id="submit-form" type="submit" value="Process image" />
@@ -92,7 +104,6 @@
         flex-direction: column;
         label {
           font-size: 0.8em;
-          text-transform: capitalize;
           font-weight: 500;
         }
         input {
