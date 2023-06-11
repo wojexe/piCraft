@@ -1,26 +1,35 @@
 <script lang="ts">
   import { PiCraftAPI } from "$lib/api";
-  import { tick } from "svelte";
+  import { setContext } from "svelte";
+
+  import InputParams from "./form/input_params.svelte";
+  import CommittedModifications from "./form/committed_modifications.svelte";
+  import { writable, type Writable } from "svelte/store";
 
   const acceptedFileTypes = PiCraftAPI.acceptedFileTypes;
   const availableModifications = PiCraftAPI.availableModifications;
 
-  let selectedModification: PiCraftAPI.Modification | null = availableModifications[0];
+  let selectedModification: PiCraftAPI.Modification = availableModifications[0];
 
-  let commitedModitications: Array<PiCraftAPI.Modification> = [];
+  const writableModification: Writable<PiCraftAPI.Modification> = writable(
+    structuredClone(selectedModification)
+  );
 
-  $: console.log(commitedModitications);
+  const selectModification = (val: PiCraftAPI.Modification) => {
+    writableModification.set(structuredClone(val));
+  };
 
-  const addModification = async () => {
-    if (selectedModification == null) return;
+  setContext("writableModification", writableModification);
 
-    commitedModitications.push(selectedModification);
-    commitedModitications = commitedModitications; // Trigger change
+  let commitedModifications: Array<PiCraftAPI.Modification> = [];
 
-    // Reset the inputs
-    selectedModification = null;
-    await tick();
-    selectedModification = availableModifications[0];
+  const commitModification = () => {
+    writableModification.update((val) => {
+      commitedModifications.push(val);
+      commitedModifications = commitedModifications; // Trigger update
+
+      return structuredClone(availableModifications[0]);
+    });
   };
 </script>
 
@@ -34,30 +43,24 @@
 
   <div class="frag">
     <label for="select-modification" class="subsection">Choose modifications:</label>
-    <select id="select-modification" bind:value={selectedModification}>
+    <select
+      id="select-modification"
+      bind:value={selectedModification}
+      on:change={() => selectModification(selectedModification)}
+    >
       {#each availableModifications as modif}
         <option value={modif}>{modif.display}</option>
       {/each}
     </select>
-    {#if selectedModification != null && selectedModification.params.length > 0}
-      <div class="modificationParams">
-        {#each selectedModification?.params as param}
-          <div class="modificationParam">
-            <label for={`param${param.name}`}>{param.display}</label>
-            <input id={`param${param.name}`} type={param.type} />
-          </div>
-        {/each}
-      </div>
-    {/if}
 
-    <input type="button" value="+" on:click|preventDefault={() => addModification()} />
+    <InputParams />
+
+    <input type="button" value="+" on:click|preventDefault={() => commitModification()} />
   </div>
 
   <div class="frag">
     <span class="subsection">Selected modifications:</span>
-    {#each commitedModitications as modif}
-      {modif.display}<br />
-    {/each}
+    <CommittedModifications modifications={commitedModifications} />
   </div>
 
   <input id="submit-form" type="submit" value="Process image" />
@@ -90,30 +93,6 @@
       font-size: 1.2em;
       font-weight: 500;
       margin-bottom: 0.5rem;
-    }
-
-    .modificationParams {
-      display: flex;
-      flex-direction: row;
-      width: 100%;
-      justify-content: space-around;
-      gap: 1rem;
-
-      .modificationParam {
-        display: flex;
-        flex-direction: column;
-        label {
-          font-size: 0.8em;
-          font-weight: 500;
-        }
-        input {
-          width: 12ch;
-          padding: 0.5ch 1ch;
-          border: none;
-
-          border-radius: 1rem;
-        }
-      }
     }
   }
 </style>

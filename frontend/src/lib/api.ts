@@ -12,11 +12,13 @@ export namespace PiCraftAPI {
         {
           name: "width",
           display: "Width",
+          defaultValue: 256,
           type: "number"
         },
         {
           name: "height",
           display: "Height",
+          defaultValue: 256,
           type: "number"
         }
       ],
@@ -29,6 +31,7 @@ export namespace PiCraftAPI {
         {
           name: "rate",
           display: "Compression rate",
+          defaultValue: 80,
           type: "number"
         }
       ],
@@ -47,6 +50,7 @@ export namespace PiCraftAPI {
         {
           name: "resultFormat",
           display: "Result format",
+          defaultValue: ".jpg",
           type: "text"
         }
       ],
@@ -64,6 +68,8 @@ export namespace PiCraftAPI {
   export type ModificationParam = {
     name: string,
     display: string,
+    defaultValue: any,
+    value?: any,
     type: string
   }
 
