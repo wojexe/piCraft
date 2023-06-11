@@ -5,7 +5,7 @@
   import type { PiCraftAPI } from "@/lib/api";
   import ParameterInput from "./parameter_input.svelte";
 
-  const modification: Writable<PiCraftAPI.Modification> = getContext("currentModification");
+  const modification: Writable<PiCraftAPI.Modification> = getContext("writableModification");
 
   const hasParams = (mod: PiCraftAPI.Modification) => mod.params.length > 0;
 </script>

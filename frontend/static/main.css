@@ -4,6 +4,7 @@
   --link: hsl(250, 90%, 60%);
   --link-visited: hsl(250, 50%, 60%);
   --card-background: hsl(0, 0%, 90%);
+  --card-background--light: hsl(0, 0%, 95%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -13,6 +14,7 @@
     --link: hsl(250, 90%, 80%);
     --link-visited: hsl(250, 50%, 80%);
     --card-background: hsl(0, 0%, 25%);
+    --card-background--light: hsl(0, 0%, 30%);
   }
 }
 
