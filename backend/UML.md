@@ -1,4 +1,5 @@
 ```mermaid
+
 classDiagram
     Operation ..> ImageClass
     ImageFacade ..> ImageClass
@@ -9,59 +10,65 @@ classDiagram
     Operation <|.. ImageOperation
     ImageOperation o-- Operation
     ImageFacade *-- ImageOperation
-    ImageFacade *-- GenerateURL
+    ImageFacade *-- GenerateResponse
     ImageFacade *-- ImageLoader
+    GenerateResponse ..> Model
+    ImageLoader ..> Model
+    ImageFacade ..> Model
+
+    class Model{
+        ImageField imageModel
+    }
 
     class ImageClass{
-        -ImageType image
-        -String url
+        -ImageTypePIL image
         +init()
         +getImage()
-        +setImage(ImageType image_)
-        +getUrl()
-        +setUrl(String url_)
+        +setImage(ImageTypePIL image_)
     }
     class ImageFacade{
-        -ImageLoad imgLoad
-        -ImageOperation imgOperation
-        -generateURL imgUrl
+        -ImageLoader imageLoad
+        -ImageOperation imageOperations
+        -GenerateResponse imageGenerateResponse
 
-        +add_operation(Operation operation)
-        +loadImage(Imagetype image)
-        +processImage(ImageClass img)
-        +urlSave(ImageClass img)
+        +addOperation(Operation operation)
+        +loadImage(Model Img,Imagetype img)
+        +process(ImageClass img)
+        +generateResponse(ImageClass img, Model Img)
     }
-    class GenerateURL{
-        +generate_url(ImageClass img)
+    class GenerateResponse{
+        +generateResponseFromImage(ImageClass img, Model Img)$
     }
     class ImageOperation{
         Operation operations[]
-        +add_operation(Operation operation)
+        +addOperation(Operation operation)
         +process(ImageClass img)
 
     }
     class ImageLoader{
-        +loadImage(Imagetype image)
-    }
+        +loadImageFromObject(Model Img,Imagetype img)$
+        +loadImageFromPath(String path,Imagetype img)$
 
-    class Operation{
-        process(ImageClass img)
     }
+    class Operation{
+        +process(ImageClass img)*
+    }
+    <<abstract>> Operation
     class EnhanceOperation{
-        int level
         +process(ImageClass img)
     }
     class CompressOperation{
-        int percentage
+        -int percentage
         +process(ImageClass img)
     }
     class ResizeOperation{
-        int height
-        int width
+        -int height
+        -int width
         +process(ImageClass img)
     }
     class ChangeFormatOperation{
-        String format
-        process(ImageClass img)
+        -String format
+        +process(ImageClass img)
     }
+
 ```
