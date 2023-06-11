@@ -1,27 +1,25 @@
 <script lang="ts">
-  import { PiCraftAPI } from "$lib/api";
+  import { acceptedFileTypes, availableModifications } from "$lib/api";
+  import type { Modification } from "$lib/api";
   import { setContext } from "svelte";
 
   import InputParams from "./form/input_params.svelte";
   import CommittedModifications from "./form/committed_modifications.svelte";
   import { writable, type Writable } from "svelte/store";
 
-  const acceptedFileTypes = PiCraftAPI.acceptedFileTypes;
-  const availableModifications = PiCraftAPI.availableModifications;
+  let selectedModification: Modification = availableModifications[0];
 
-  let selectedModification: PiCraftAPI.Modification = availableModifications[0];
-
-  const writableModification: Writable<PiCraftAPI.Modification> = writable(
+  const writableModification: Writable<Modification> = writable(
     structuredClone(selectedModification)
   );
 
-  const selectModification = (val: PiCraftAPI.Modification) => {
+  const selectModification = (val: Modification) => {
     writableModification.set(structuredClone(val));
   };
 
   setContext("writableModification", writableModification);
 
-  let commitedModifications: Array<PiCraftAPI.Modification> = [];
+  let commitedModifications: Array<Modification> = [];
 
   const commitModification = () => {
     writableModification.update((val) => {

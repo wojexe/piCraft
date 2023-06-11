@@ -2,12 +2,12 @@
   import { getContext } from "svelte";
   import type { Writable } from "svelte/store";
 
-  import type { PiCraftAPI } from "@/lib/api";
+  import type { Modification } from "@/lib/api";
   import ParameterInput from "./parameter_input.svelte";
 
-  const modification: Writable<PiCraftAPI.Modification> = getContext("writableModification");
+  const modification: Writable<Modification> = getContext("writableModification");
 
-  const hasParams = (mod: PiCraftAPI.Modification) => mod.params.length > 0;
+  const hasParams = (mod: Modification) => mod.params.length > 0;
 </script>
 
 {#if hasParams($modification)}

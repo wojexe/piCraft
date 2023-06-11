@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { PiCraftAPI } from "@/lib/api";
+  import type { ModificationParam } from "@/lib/api";
 
-  export let param: PiCraftAPI.ModificationParam;
+  export let param: ModificationParam;
 
   const dynamicType = (node: HTMLInputElement) => {
     node.type = param.type;
