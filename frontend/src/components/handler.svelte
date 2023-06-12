@@ -11,12 +11,13 @@
   import CommittedModifications from "./form/committed_modifications.svelte";
 
   let selectedModifID = availableModifs[0].id;
-  let selectedParams = modifParams[selectedModifID];
+  let selectedParams = structuredClone(modifParams[selectedModifID]);
 
   const selectModif = (id: AvailableModifications) => {
     selectedParams = structuredClone(modifParams[id]);
   };
 
+  // TODO: Writable maybe?
   let commitedModifications: Array<any> = [];
 
   const commitModif = () => {
@@ -34,8 +35,6 @@
 </script>
 
 <form class="handler">
-  <!-- TODO: Implement a custom-styled file input button (show filename) -->
-  <!-- https://jsfiddle.net/4cwpLvae/ -->
   <div class="frag">
     <label for="file-picker" class="subsection">Select your image:</label>
     <input id="file-picker" type="file" accept={acceptedFileTypes.join(",.")} />

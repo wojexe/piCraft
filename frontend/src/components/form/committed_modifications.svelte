@@ -27,6 +27,8 @@
       </div>
     {/each}
   </div>
+{:else}
+  No modifications selected yet!
 {/if}
 
 <style lang="scss">
