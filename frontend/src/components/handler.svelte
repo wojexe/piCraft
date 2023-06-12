@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { writable, type Writable } from "svelte/store";
+
   import {
     acceptedFileTypes,
     availableModifications as availableModifs,
@@ -17,8 +19,7 @@
     selectedParams = structuredClone(modifParams[id]);
   };
 
-  // TODO: Writable maybe?
-  let commitedModifications: Array<any> = [];
+  let commitedModifications: Writable<Array<Modification>> = writable([]);
 
   const commitModif = () => {
     const mod: Modification = {
@@ -26,8 +27,10 @@
       params: selectedParams
     };
 
-    commitedModifications.push(mod);
-    commitedModifications = commitedModifications; // Trigger update
+    commitedModifications.update((val) => {
+      val.push(mod);
+      return val;
+    });
 
     selectedModifID = availableModifs[0].id;
     selectedParams = structuredClone(modifParams[selectedModifID]);
@@ -54,7 +57,7 @@
 
     <InputParams params={selectedParams} />
 
-    {#if commitedModifications.length < 4}
+    {#if $commitedModifications.length < 4}
       <input type="button" value="+" on:click={() => commitModif()} />
     {:else}
       <span class="reachedLimit">You can pick atmost 4 modification at a time!</span>

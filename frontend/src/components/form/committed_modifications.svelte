@@ -1,17 +1,20 @@
 <script lang="ts">
+  import type { Writable } from "svelte/store";
   import type { Modification } from "@/lib/api";
 
-  export let modifications: Array<Modification>;
+  export let modifications: Writable<Array<Modification>>;
 
   const removeModif = (i: number) => {
-    modifications.splice(i, 1);
-    modifications = modifications;
+    modifications.update((val) => {
+      val.splice(i, 1);
+      return val;
+    });
   };
 </script>
 
-{#if modifications.length > 0}
+{#if $modifications.length > 0}
   <div class="modifications">
-    {#each modifications as modif, i}
+    {#each $modifications as modif, i}
       <div class="modification-wrapper">
         <div class="modification">
           <span class="modification-name">{modif.display}</span>
