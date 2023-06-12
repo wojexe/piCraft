@@ -8,37 +8,40 @@ from .models import Image as ImageClass
 import imghdr
 from django.http import FileResponse
 from . import utils as us
+from django.core import validators
+from pillow_heif import register_heif_opener
+
 
 # Create your views here.
-LEGAL_FORMATS = ['jpg', 'jpeg', 'png', 'gifv', 'heic', 'gif', 'tiff', 'bmp', 'webp']
+LEGAL_FORMATS = ['jpg', 'jpeg', 'png', 'gifv', 'heic', 'gif', 'tiff', 'bmp', 'webp','heif']
+register_heif_opener()
 
 
 class Resize(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, *args, **kwargs):
-        try:
-            # todo: more validation data?
-            # todo: logic for Resizing
-            file_serializer = PhotoSerializer(data=request.data)
-            name = request.data['name']
-            width = request.data['width']
-            height = request.data['height']
-            width_image = int(width)
-            height_image = int(height)
-            if file_serializer.is_valid() and name == 'resize' and width_image > 0 and height_image > 0 and imghdr.what(
+        # todo: more validation data?
+        # todo: logic for Resizing
+        file_serializer = PhotoSerializer(data=request.data)
+        name = request.data['name']
+        width = request.data['width']
+        height = request.data['height']
+        width_image = int(width)
+        height_image = int(height)
+        if file_serializer.is_valid() and name == 'resize' and width_image > 0 and height_image > 0 and imghdr.what(
                     file_serializer.validated_data['file']) in LEGAL_FORMATS:
-                instance = file_serializer.save()
-                s = open(instance.file.path, 'rb')
-                resp = FileResponse(s)
+
+            instance = file_serializer.save()
+            s = open(instance.file.path, 'rb')
+            resp = FileResponse(s)
                 # to do check response Content-Type
                 # resp.set_headers({'Content-Type': 'multipart/form-data'})
                 # resp['Content-Type'] = 'multipart/form-data'
-                return resp
-            else:
-                return Response(file_serializer.errors, status=400)
-        except Exception as e:
-            return Response(str(e), status=400)
+            return resp
+        else:
+            return Response(file_serializer.errors, status=400)
+
 
 
 class Compress(APIView):

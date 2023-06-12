@@ -23,11 +23,11 @@ class ImageClass:
 
     """Get image"""
 
-    def getImage(self, path: str) -> Image:
+    def getImage(self) -> Image:
         return self.image
 
 
-class ImageLoad:
+class ImageLoader:
     """Image load class for loading image from path or object"""
 
     """Load image from object model"""
@@ -68,7 +68,7 @@ class ImageOperation(Operation):
     def __init__(self):
         self.operations = []
 
-    def add_operation(self, operation: Operation):
+    def addOperation(self, operation: Operation):
         self.operations.append(operation)
 
     def process(self, img: ImageClass):
@@ -110,13 +110,13 @@ class ChangeFormatOperation(Operation):
 class ImageFacade:
     """Facade class for image processing, we are using it to load image, process it and generate response"""
     def __init__(self):
-        self.imageLoad = ImageLoad()
+        self.imageLoad = ImageLoader()
         self.imageOperations = ImageOperation()
         self.imageGenerateResponse = GenerateResponse()
 
     """Add operation to composite class"""
-    def add_operation(self, operation: Operation):
-        self.imageOperations.add_operation(operation)
+    def addOperation(self, operation: Operation):
+        self.imageOperations.addOperation(operation)
 
     """Process image by composite class"""
     def process(self, img: ImageClass):
