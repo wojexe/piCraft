@@ -5,22 +5,18 @@ export const availableModifications = [
   {
     id: "resize",
     display: "Resize",
-    endpoint: "/resize"
   },
   {
     id: "compress",
     display: "Compress",
-    endpoint: "/compress"
   },
   {
     id: "enhance",
     display: "Enhance",
-    endpoint: "/enhance"
   },
   {
     id: "changeFormat",
     display: "Change format",
-    endpoint: "/change_format"
   }
 ] as const;
 
@@ -51,6 +47,13 @@ export const modificationParams: Record<AvailableModifications, Array<AnyParam>>
     }
   ]
 };
+
+export const modificationFetch: Record<AvailableModifications, any> = {
+  resize: undefined,
+  compress: undefined,
+  enhance: undefined,
+  changeFormat: undefined
+}
 
 export type Modification = {
   id: string;

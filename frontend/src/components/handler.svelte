@@ -35,12 +35,34 @@
     selectedModifID = availableModifs[0].id;
     selectedParams = structuredClone(modifParams[selectedModifID]);
   };
+
+  const submitForm = () => {
+    console.log("submitForm");
+
+    if ($commitedModifications.length === 0) {
+      // TODO: tost the user to select an modification and do nothing
+
+      console.log("no modifs");
+
+      return;
+    }
+
+    if ($commitedModifications.length === 1) {
+      // TODO: perfom a singular request from a modification
+
+      console.log("single modif");
+
+      return;
+    }
+
+    console.log("combined modifs");
+  };
 </script>
 
-<form class="handler">
+<form class="handler" on:submit|preventDefault={() => submitForm()}>
   <div class="frag">
     <label for="file-picker" class="subsection">Select your image:</label>
-    <input id="file-picker" type="file" accept={acceptedFileTypes.join(",.")} />
+    <input id="file-picker" type="file" required accept={acceptedFileTypes.join(",.")} />
   </div>
 
   <div class="frag">
