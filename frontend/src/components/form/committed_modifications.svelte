@@ -2,11 +2,16 @@
   import type { Modification } from "@/lib/api";
 
   export let modifications: Array<Modification>;
+
+  const removeModif = (i: number) => {
+    modifications.splice(i, 1);
+    modifications = modifications;
+  };
 </script>
 
 {#if modifications.length > 0}
   <div class="modifications">
-    {#each modifications as modif}
+    {#each modifications as modif, i}
       <div class="modification-wrapper">
         <div class="modification">
           <span class="modification-name">{modif.display}</span>
@@ -18,7 +23,7 @@
             </div>
           {/if}
         </div>
-        <span class="remove-button">❌</span>
+        <span class="remove-button" on:click={() => removeModif(i)}>❌</span>
       </div>
     {/each}
   </div>
@@ -30,7 +35,7 @@
     width: 90%;
     flex-direction: column;
     gap: 2rem;
-    padding: 0.5em 1em;
+    padding: 1em;
 
     border-radius: 1em;
     background-color: var(--card-background--light);

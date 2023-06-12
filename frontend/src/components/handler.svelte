@@ -1,33 +1,35 @@
 <script lang="ts">
-  import { acceptedFileTypes, availableModifications } from "$lib/api";
-  import type { Modification } from "$lib/api";
-  import { setContext } from "svelte";
+  import {
+    acceptedFileTypes,
+    availableModifications as availableModifs,
+    modificationParams as modifParams,
+    type AvailableModifications,
+    type Modification
+  } from "$lib/api";
 
   import InputParams from "./form/input_params.svelte";
   import CommittedModifications from "./form/committed_modifications.svelte";
-  import { writable, type Writable } from "svelte/store";
 
-  let selectedModification: Modification = availableModifications[0];
+  let selectedModifID = availableModifs[0].id;
+  let selectedParams = modifParams[selectedModifID];
 
-  const writableModification: Writable<Modification> = writable(
-    structuredClone(selectedModification)
-  );
-
-  const selectModification = (val: Modification) => {
-    writableModification.set(structuredClone(val));
+  const selectModif = (id: AvailableModifications) => {
+    selectedParams = structuredClone(modifParams[id]);
   };
 
-  setContext("writableModification", writableModification);
+  let commitedModifications: Array<any> = [];
 
-  let commitedModifications: Array<Modification> = [];
+  const commitModif = () => {
+    const mod: Modification = {
+      ...(availableModifs.find((mod) => mod.id === selectedModifID) as any),
+      params: selectedParams
+    };
 
-  const commitModification = () => {
-    writableModification.update((val) => {
-      commitedModifications.push(val);
-      commitedModifications = commitedModifications; // Trigger update
+    commitedModifications.push(mod);
+    commitedModifications = commitedModifications; // Trigger update
 
-      return structuredClone(availableModifications[0]);
-    });
+    selectedModifID = availableModifs[0].id;
+    selectedParams = structuredClone(modifParams[selectedModifID]);
   };
 </script>
 
@@ -36,24 +38,28 @@
   <!-- https://jsfiddle.net/4cwpLvae/ -->
   <div class="frag">
     <label for="file-picker" class="subsection">Select your image:</label>
-    <input id="file-picker" type="file" accept={acceptedFileTypes.join(",")} />
+    <input id="file-picker" type="file" accept={acceptedFileTypes.join(",.")} />
   </div>
 
   <div class="frag">
     <label for="select-modification" class="subsection">Choose modifications:</label>
     <select
       id="select-modification"
-      bind:value={selectedModification}
-      on:change={() => selectModification(selectedModification)}
+      bind:value={selectedModifID}
+      on:change={() => selectModif(selectedModifID)}
     >
-      {#each availableModifications as modif}
-        <option value={modif}>{modif.display}</option>
+      {#each availableModifs as modif}
+        <option value={modif.id}>{modif.display}</option>
       {/each}
     </select>
 
-    <InputParams />
+    <InputParams params={selectedParams} />
 
-    <input type="button" value="+" on:click|preventDefault={() => commitModification()} />
+    {#if commitedModifications.length < 4}
+      <input type="button" value="+" on:click={() => commitModif()} />
+    {:else}
+      <span class="reachedLimit">You can pick atmost 4 modification at a time!</span>
+    {/if}
   </div>
 
   <div class="frag">
@@ -91,6 +97,11 @@
       font-size: 1.2em;
       font-weight: 500;
       margin-bottom: 0.5rem;
+    }
+
+    .reachedLimit {
+      font-weight: 500;
+      margin-top: 0.25rem;
     }
   }
 </style>

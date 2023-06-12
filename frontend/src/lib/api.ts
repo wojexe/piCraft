@@ -1,99 +1,82 @@
-export const acceptedFileTypes = [
-  ".png",
-  ".jpeg",
-  ".jpg",
-  ".bmp",
-  ".heic",
-  ".gif",
-  ".gifv",
-  ".webp",
-  ".tiff"
-];
+export const acceptedFileTypes = ["png", "jpeg", "jpg", "bmp", "heic", "gif", "gifv", "webp", "tiff"] as const;
+export type AcceptedFileTypes = typeof acceptedFileTypes[number];
 
-export const availableModifications: Array<Modification> = [
+export const availableModifications = [
   {
-    name: "resize",
+    id: "resize",
     display: "Resize",
-    params: [
-      {
-        name: "width",
-        display: "Width",
-        defaultValue: 256,
-        type: "number"
-      },
-      {
-        name: "height",
-        display: "Height",
-        defaultValue: 256,
-        type: "number"
-      }
-    ],
     endpoint: "/resize"
   },
   {
-    name: "compress",
+    id: "compress",
     display: "Compress",
-    params: [
-      {
-        name: "rate",
-        display: "Compression rate",
-        defaultValue: 80,
-        type: "number"
-      }
-    ],
     endpoint: "/compress"
   },
   {
-    name: "enhance",
+    id: "enhance",
     display: "Enhance",
-    params: [],
     endpoint: "/enhance"
   },
   {
-    name: "changeFormat",
+    id: "changeFormat",
     display: "Change format",
-    params: [
-      {
-        name: "resultFormat",
-        display: "Result format",
-        defaultValue: ".jpg",
-        type: "text"
-      }
-    ],
     endpoint: "/change_format"
   }
-];
+] as const;
+
+export type AvailableModifications = typeof availableModifications[number]["id"];
+
+export const modificationParams: Record<AvailableModifications, Array<AnyParam>> = {
+  resize: [
+    {
+      type: "number", id: "width", display: "Width",
+      defaultValue: 256, min: 8, max: 8196
+    },
+    {
+      type: "number", id: "height", display: "Height",
+      defaultValue: 256, min: 8, max: 8196
+    }
+  ],
+  compress: [
+    {
+      type: "number", id: "rate", display: "Compression rate",
+      defaultValue: 80, min: 10, max: 100
+    }
+  ],
+  enhance: [],
+  changeFormat: [
+    {
+      type: "select", id: "format", display: "Result format",
+      defaultValue: "jpg", selections: acceptedFileTypes
+    }
+  ]
+};
 
 export type Modification = {
-  name: string;
+  id: string;
   display: string;
-  params: Array<ModificationParam>;
+  params: Array<AnyParam>;
   endpoint: string;
 };
 
-export type ModificationParam = {
-  name: string;
+export interface ModificationParam {
+  id: string;
   display: string;
+  type: string;
+}
+
+export interface NumberParam extends ModificationParam {
+  defaultValue: number;
+  value?: number;
+  min: number;
+  max: number;
+}
+
+export interface SelectParam extends ModificationParam {
   defaultValue: any;
   value?: any;
-  type: string;
-};
+  selections?: Array<any> | ReadonlyArray<any>;
+}
 
-// export type Resize = {
-//   Request: {};
-//   Response: {};
-// };
+export type AnyParam = NumberParam | SelectParam;
 
-// export type Compress = {
-//   Request: {};
-//   Response: {};
-// };
-
-// export type Enhance = {
-//   Request: {};
-//   Response: {};
-// };
-// export type ChangeFormat = {
-//   Request: {};
-//   Response: {};
-// };
