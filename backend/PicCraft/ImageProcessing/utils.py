@@ -6,7 +6,6 @@ import base64
 from django.db import models
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import FileResponse
-
 from .models import Image as Img
 
 

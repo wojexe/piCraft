@@ -1,19 +1,19 @@
+import json
 from PIL import Image
 from django.shortcuts import render
 from rest_framework.parsers import FileUploadParser, MultiPartParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializer import PhotoSerializer
-from .models import Image as ImageClass
+from .models import Image as ImageClass, LEGAL_FORMATS
 import imghdr
 from django.http import FileResponse
 from . import utils as us
-from django.core import validators
 from pillow_heif import register_heif_opener
 
+LIMIT = 10000
 
 # Create your views here.
-LEGAL_FORMATS = ['jpg', 'jpeg', 'png', 'gifv', 'heic', 'gif', 'tiff', 'bmp', 'webp','heif']
 register_heif_opener()
 
 
@@ -23,52 +23,70 @@ class Resize(APIView):
     def post(self, request, *args, **kwargs):
         # todo: more validation data?
         # todo: logic for Resizing
-        file_serializer = PhotoSerializer(data=request.data)
-        name = request.data['name']
-        width = request.data['width']
-        height = request.data['height']
-        width_image = int(width)
-        height_image = int(height)
-        if file_serializer.is_valid() and name == 'resize' and width_image > 0 and height_image > 0 and imghdr.what(
-                    file_serializer.validated_data['file']) in LEGAL_FORMATS:
+        try:
+            file_serializer = PhotoSerializer(data=request.FILES)
+            name = request.POST['name']
+            width = request.POST['width']
+            height = request.POST['height']
 
+            if name != 'resize':
+                return Response('Wrong name of request', status=400)
+            try:
+                width_image = int(width)
+                height_image = int(height)
+            except ValueError:
+                return Response('Width and height must be integer', status=400)
+            if width_image <= 0 or height_image <= 0 or width_image > LIMIT or height_image > LIMIT:
+                return Response(f'Width and height must be positive and less than {LIMIT}', status=400)
+            if not file_serializer.is_valid():
+                return Response(file_serializer.errors.get("file")[0], status=400)
+            # START LOGIC
             instance = file_serializer.save()
-            s = open(instance.file.path, 'rb')
-            resp = FileResponse(s)
-                # to do check response Content-Type
-                # resp.set_headers({'Content-Type': 'multipart/form-data'})
-                # resp['Content-Type'] = 'multipart/form-data'
+
+            # END LOGIC
+            try:
+                s = open(instance.file.path, 'rb')
+                resp = FileResponse(s, status=200)
+            except:
+                return Response('File not found', status=400)
             return resp
-        else:
-            return Response(file_serializer.errors, status=400)
+        except Exception as e:
+            return Response(e, status=400)
 
 
-
+# to do check response Content-Type
+# resp.set_headers({'Content-Type': 'multipart/form-data'})
+# resp['Content-Type'] = 'multipart/form-data'
 class Compress(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, *args, **kwargs):
         try:
-            # todo: more validation data?
-            # todo: logic for Compressing
-            file_serializer = PhotoSerializer(data=request.data)
-            name = request.data['name']
-            rate = request.data['rate']
-            rate_image = int(rate)
-            if file_serializer.is_valid() and name == 'compress' and 0 <= rate_image <= 100 and imghdr.what(
-                    file_serializer.validated_data['file']) in LEGAL_FORMATS:
-                instance = file_serializer.save()
-                s = open(instance.file.path, 'rb')
+            file_serializer = PhotoSerializer(data=request.FILES)
+            name = request.POST['name']
+            rate = request.POST['rate']
+            if name != 'compress':
+                return Response('Wrong name of request', status=400)
+            try:
+                rate_image = int(rate)
+            except ValueError:
+                return Response('Rate of compression must be integer', status=400)
+            if rate_image <= 0 or rate_image >= 100:
+                return Response(f'Rate of compression must be positive and less than 100', status=400)
+            if not file_serializer.is_valid():
+                return Response(file_serializer.errors.get("file")[0], status=400)
+            # START LOGIC
+            instance = file_serializer.save()
 
-                resp = FileResponse(s)
-                # to do check response Content-Type
-                # resp.set_headers({'Content-Type': 'multipart/form-data'})
-                # resp['Content-Type'] = 'multipart/form-data'
-                return resp
-            else:
-                return Response(file_serializer.errors, status=400)
+            # END LOGIC
+            try:
+                s = open(instance.file.path, 'rb')
+                resp = FileResponse(s, status=200)
+            except:
+                return Response('File not found', status=400)
+            return resp
         except Exception as e:
-            return Response(str(e), status=400)
+            return Response(e, status=400)
 
 
 class Enhance(APIView):
@@ -76,24 +94,24 @@ class Enhance(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            # todo: more validation data?
-            # todo: logic for Enhancing
-            file_serializer = PhotoSerializer(data=request.data)
-            name = request.data['name']
-            if file_serializer.is_valid() and name == 'enhance' and imghdr.what(
-                    file_serializer.validated_data['file']) in LEGAL_FORMATS:
-                instance = file_serializer.save()
-                s = open(instance.file.path, 'rb')
-                resp = FileResponse(s)
-                # to do check response Content-Type
-                # resp.set_headers({'Content-Type': 'multipart/form-data'})
-                # resp['Content-Type'] = 'multipart/form-data'
+            file_serializer = PhotoSerializer(data=request.FILES)
+            name = request.POST['name']
+            if name != 'enhance':
+                return Response('Wrong name of request', status=400)
+            if not file_serializer.is_valid():
+                return Response(file_serializer.errors.get("file")[0], status=400)
+            # START LOGIC
+            instance = file_serializer.save()
 
-                return resp
-            else:
-                return Response(file_serializer.errors, status=400)
+            # END LOGIC
+            try:
+                s = open(instance.file.path, 'rb')
+                resp = FileResponse(s, status=200)
+            except:
+                return Response('File not found', status=400)
+            return resp
         except Exception as e:
-            return Response(str(e), status=400)
+            return Response(e, status=400)
 
 
 class ChangeFormat(APIView):
@@ -101,25 +119,26 @@ class ChangeFormat(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            # todo: more validation data?
-            # todo: logic for ChangingFormat
-            file_serializer = PhotoSerializer(data=request.data)
-            name = request.data['name']
-            format_image = request.data['format']
-            if file_serializer.is_valid() and name == 'enhance' and imghdr.what(
-                    file_serializer.validated_data['file']) in LEGAL_FORMATS and format_image in LEGAL_FORMATS:
-                instance = file_serializer.save()
+            file_serializer = PhotoSerializer(data=request.FILES)
+            name = request.POST['name']
+            format_image = request.POST['format']
+            if name != 'change_format':
+                return Response('Wrong name of request', status=400)
+            if format_image not in LEGAL_FORMATS:
+                return Response(f'Format must be in {LEGAL_FORMATS}', status=400)
+            if not file_serializer.is_valid():
+                return Response(file_serializer.errors.get("file")[0], status=400)
+            # START LOGIC
+            instance = file_serializer.save()
+            # END LOGIC
+            try:
                 s = open(instance.file.path, 'rb')
-                resp = FileResponse(s)
-                # to do check response Content-Type
-                # resp.set_headers({'Content-Type': 'multipart/form-data'})
-                # resp['Content-Type'] = 'multipart/form-data'
-
-                return resp
-            else:
-                return Response(file_serializer.errors, status=400)
+                resp = FileResponse(s, status=200)
+            except:
+                return Response('File not found', status=400)
+            return resp
         except Exception as e:
-            return Response(str(e), status=400)
+            return Response(e, status=400)
 
 
 class Combine(APIView):
@@ -127,29 +146,63 @@ class Combine(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            # todo: more validation data?
-            # todo: logic for ChangingFormat
-            file_serializer = PhotoSerializer(data=request.data)
-            name = request.data['name']
-            operations = request.data['operations']
+            file_serializer = PhotoSerializer(data=request.FILES)
+            data=json.loads(request.POST["params"])
+            if not file_serializer.is_valid():
+                return Response(file_serializer.errors.get("file")[0], status=400)
+            instance = file_serializer.save()
+            try:
+                for obj in data:
+                    name = obj.get('name')
+                    if name == 'resize':
+                        width = obj.get('width')
+                        height = obj.get('height')
+                        try:
+                            width_image = int(width)
+                            height_image = int(height)
+                        except ValueError:
+                            return Response('Width and height must be integer', status=400)
+                        if width_image <= 0 or height_image <= 0 or width_image > LIMIT or height_image > LIMIT:
+                            return Response(f'Width and height must be positive and less than {LIMIT}', status=400)
+                        # START LOGIC
 
-            if file_serializer.is_valid() and name == 'enhance' and imghdr.what(
-                    file_serializer.validated_data['file']) in LEGAL_FORMATS:
-                instance = file_serializer.save()
-                s = open(instance.file.path, 'rb')
-                resp = FileResponse(s)
-                # to do check response Content-Type
-                # resp.set_headers({'Content-Type': 'multipart/form-data'})
-                # resp['Content-Type'] = 'multipart/form-data'
+                        # END LOGIC
+                    elif name == 'compress':
+                        rate = obj.get('rate')
+                        try:
+                            rate_image = int(rate)
+                        except ValueError:
+                            return Response('Rate of compression must be integer', status=400)
+                        if rate_image <= 0 or rate_image >= 100:
+                            return Response(f'Rate of compression must be positive and less than 100', status=400)
+                        # START LOGIC
 
-                return resp
-            else:
-                return Response(file_serializer.errors, status=400)
+                        # END LOGIC
+
+                    elif name == 'enhance':
+                        pass
+                        # START LOGIC
+
+                        # END LOGIC
+
+                    elif name == 'change_format':
+                        format_image = obj.get('format')
+                        if format_image not in LEGAL_FORMATS:
+                            return Response(f'Format must be in {LEGAL_FORMATS}', status=400)
+                        # START LOGIC
+
+                        # END LOGIC
+
+                    else:
+                        return Response('Wrong name of request', status=400)
+
+
+
+            except Exception as e:
+                return Response(str(e), status=400)
+            s = open(instance.file.path, 'rb')
+            resp = FileResponse(s)
+
+            return resp
         except Exception as e:
             return Response(str(e), status=400)
-
-# image to PIL object
-# instance = file_serializer.save()
-# a=ImageClass.objects.get(file=instance.file)
-# im=Image.open(a.file.path)
-# im.show()
