@@ -1,3 +1,5 @@
+import { PUBLIC_PICRAFT_API } from "$env/static/public";
+
 export const acceptedFileTypes = ["png", "jpeg", "jpg", "bmp", "heic", "gif", "webp", "tiff"] as const;
 export type AcceptedFileTypes = typeof acceptedFileTypes[number];
 
@@ -5,18 +7,22 @@ export const availableModifications = [
   {
     id: "resize",
     display: "Resize",
+    endpoint: "resize"
   },
   {
     id: "compress",
     display: "Compress",
+    endpoint: "compress"
   },
   {
     id: "enhance",
     display: "Enhance",
+    endpoint: "enhance"
   },
   {
     id: "changeFormat",
     display: "Change format",
+    endpoint: "change_format"
   }
 ] as const;
 
@@ -48,15 +54,53 @@ export const modificationParams: Record<AvailableModifications, Array<AnyParam>>
   ]
 };
 
-export const modificationFetch: Record<AvailableModifications, any> = {
-  resize: undefined,
-  compress: undefined,
-  enhance: undefined,
-  changeFormat: undefined
+type ModificationFetch = (file: File, modification: Array<Modification>) => Promise<Response>;
+
+export const modificationFetch: ModificationFetch = (file: File, modifications: Array<Modification>) => {
+  let endpoint;
+
+  if (modifications.length === 1) {
+    endpoint = modifications[0].endpoint;
+  } else {
+    endpoint = "combine"
+  }
+
+  const url = new URL(endpoint, PUBLIC_PICRAFT_API);
+
+  const formData = new FormData();
+
+  formData.append("file", file);
+
+  // TODO: add more specific type
+  type Param = { name: string } & { [key: string]: string };
+
+  let body: Param | Array<Param>;
+  if (modifications.length === 1) {
+    const modification = modifications[0];
+
+    body = {
+      name: modification.endpoint,
+      ...modification.params.reduce((obj, param) =>
+        ({ ...obj, [param.id]: param.value ?? param.defaultValue }), {})
+    }
+  } else {
+    body = modifications.map(modification => ({
+      name: modification.endpoint,
+      ...modification.params.reduce((obj, param) =>
+        ({ ...obj, [param.id]: param.value ?? param.defaultValue }), {})
+    }))
+  }
+
+  formData.append("params", JSON.stringify(body));
+
+  return fetch(url, {
+    method: "POST",
+    body: formData
+  });
 }
 
 export type Modification = {
-  id: string;
+  id: AvailableModifications;
   display: string;
   params: Array<AnyParam>;
   endpoint: string;
@@ -76,8 +120,8 @@ export interface NumberParam extends ModificationParam {
 }
 
 export interface SelectParam extends ModificationParam {
-  defaultValue: any;
-  value?: any;
+  defaultValue: string;
+  value?: string;
   selections?: Array<any> | ReadonlyArray<any>;
 }
 

@@ -6,20 +6,30 @@
     availableModifications as availableModifs,
     modificationParams as modifParams,
     type AvailableModifications,
-    type Modification
+    type Modification,
+    modificationFetch
   } from "$lib/api";
 
   import InputParams from "./form/input_params.svelte";
   import CommittedModifications from "./form/committed_modifications.svelte";
 
+  let files: FileList;
   let selectedModifID = availableModifs[0].id;
   let selectedParams = structuredClone(modifParams[selectedModifID]);
+  let commitedModifications: Writable<Array<Modification>> = writable([]);
+
+  const clearModifs = () => {
+    selectedModifID = availableModifs[0].id;
+    selectedParams = structuredClone(modifParams[selectedModifID]);
+  };
+
+  const clearSubmitted = () => {
+    commitedModifications.set([]);
+  };
 
   const selectModif = (id: AvailableModifications) => {
     selectedParams = structuredClone(modifParams[id]);
   };
-
-  let commitedModifications: Writable<Array<Modification>> = writable([]);
 
   const commitModif = () => {
     const mod: Modification = {
@@ -32,14 +42,12 @@
       return val;
     });
 
-    selectedModifID = availableModifs[0].id;
-    selectedParams = structuredClone(modifParams[selectedModifID]);
+    clearModifs();
   };
 
-  const submitForm = () => {
-    console.log("submitForm");
-
+  const submitForm = async () => {
     if ($commitedModifications.length === 0) {
+      // this branch should never happen in fact
       // TODO: tost the user to select an modification and do nothing
 
       console.log("no modifs");
@@ -47,22 +55,33 @@
       return;
     }
 
-    if ($commitedModifications.length === 1) {
-      // TODO: perfom a singular request from a modification
+    try {
+      const response = await modificationFetch(files[0], $commitedModifications);
 
-      console.log("single modif");
+      if (response.ok) {
+        const blob = await response.blob();
+        window.open(URL.createObjectURL(blob));
+      } else {
+        // show error with toast
+        const json = await response.json();
 
-      return;
+        console.error(json);
+      }
+    } catch (e) {
+      // handle this error as well
+
+      console.log("rejection", e);
     }
 
-    console.log("combined modifs");
+    clearModifs();
+    clearSubmitted();
   };
 </script>
 
-<form class="handler" on:submit|preventDefault={() => submitForm()}>
+<form class="handler" on:submit|preventDefault={async () => await submitForm()}>
   <div class="frag">
     <label for="file-picker" class="subsection">Select your image:</label>
-    <input id="file-picker" type="file" required accept={acceptedFileTypes.join(",.")} />
+    <input id="file-picker" type="file" bind:files required accept={acceptedFileTypes.join(",.")} />
   </div>
 
   <div class="frag">
@@ -91,7 +110,9 @@
     <CommittedModifications modifications={commitedModifications} />
   </div>
 
-  <input id="submit-form" type="submit" value="Process image" />
+  {#if files != null && $commitedModifications.length !== 0}
+    <input id="submit-form" type="submit" value="Process image" />
+  {/if}
 </form>
 
 <style lang="scss">
