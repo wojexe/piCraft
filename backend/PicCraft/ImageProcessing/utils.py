@@ -83,13 +83,16 @@ class ResizeOperation(Operation):
         self.height = height
 
     def process(self, img: ImageClass):
-        pass
+        image = img.getImage()
+        image = image.resize((self.width, self.height))
+        img.image = image
 
 class EnhanceOperation(Operation):
     """Leaf of composite class for enhancing image"""
     def process(self, img: ImageClass):
-        pass
-
+        image = img.getImage()
+        image = image.enhance(1.5)
+        img.image = image
 
 class CompressOperation(Operation):
     """Leaf of composite class for compressing image"""
@@ -97,15 +100,18 @@ class CompressOperation(Operation):
         self.quality = quality
 
     def process(self, img: ImageClass):
-        pass
-
+        image = img.getImage()
+        image = image.save(image.filename, True, self.quality)
+        img.image = image
 class ChangeFormatOperation(Operation):
     """Leaf of composite class for changing format of image"""
     def __init__(self, format: str):
         self.format = format
 
     def process(self, img: ImageClass):
-        pass
+        image = img.getImage()
+        image = image.conver(self.format)
+        img.image = image
 
 class ImageFacade:
     """Facade class for image processing, we are using it to load image, process it and generate response"""
