@@ -1,4 +1,4 @@
-export const acceptedFileTypes = ["png", "jpeg", "jpg", "bmp", "heic", "gif", "gifv", "webp", "tiff"] as const;
+export const acceptedFileTypes = ["png", "jpeg", "jpg", "bmp", "heic", "gif", "webp", "tiff"] as const;
 export type AcceptedFileTypes = typeof acceptedFileTypes[number];
 
 export const availableModifications = [
