@@ -1,3 +1,4 @@
+from parameterized import parameterized
 import tempfile
 from PIL import Image
 from rest_framework.test import APITestCase
@@ -7,7 +8,7 @@ from django.test import TestCase, Client
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
-def temporary_image(format_img="jpeg"):
+def temporary_image(format_img="png"):
     """
     Returns a new temporary image file
     """

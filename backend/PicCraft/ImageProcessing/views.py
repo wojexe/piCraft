@@ -10,6 +10,7 @@ import imghdr
 from django.http import FileResponse
 from . import utils as us
 from pillow_heif import register_heif_opener
+register_heif_opener()
 
 MAX_LIMIT_RES = 8196
 MIN_LIMIT_RES = 8
@@ -17,7 +18,6 @@ MAX_COMPRESS_RATE = 100
 MIN_COMPRESS_RATE = 10
 
 # Create your views here.
-register_heif_opener()
 
 
 class Resize(APIView):

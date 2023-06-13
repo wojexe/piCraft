@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
 
-LEGAL_FORMATS = ['jpg', 'jpeg', 'png', 'gifv', 'heic', 'gif', 'tiff', 'bmp', 'webp']
+LEGAL_FORMATS = ['jpg', 'jpeg', 'png', 'heic', 'gif', 'tiff', 'bmp', 'webp']
 
 
 class Image(models.Model):
