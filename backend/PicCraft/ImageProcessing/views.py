@@ -28,7 +28,8 @@ class Resize(APIView):
         # todo: logic for Resizing
         try:
             file_serializer = PhotoSerializer(data=request.FILES)
-            operations = ImageOperationSerializer(data=request.POST)
+            params_data = json.loads(request.POST['params'])
+            operations = ImageOperationSerializer(data=params_data, many=False)
             if not operations.is_valid():
                 return Response(operations.errors, status=400)
             operations_serializer=operations.validated_data
@@ -66,7 +67,8 @@ class Compress(APIView):
     def post(self, request, *args, **kwargs):
         try:
             file_serializer = PhotoSerializer(data=request.FILES)
-            operations = ImageOperationSerializer(data=request.POST)
+            params_data = json.loads(request.POST['params'])
+            operations = ImageOperationSerializer(data=params_data, many=False)
             if not operations.is_valid():
                 return Response(operations.errors, status=400)
             operations_serializer = operations.validated_data
@@ -101,7 +103,8 @@ class Enhance(APIView):
     def post(self, request, *args, **kwargs):
         try:
             file_serializer = PhotoSerializer(data=request.FILES)
-            operations = ImageOperationSerializer(data=request.POST)
+            params_data = json.loads(request.POST['params'])
+            operations = ImageOperationSerializer(data=params_data, many=False)
             if not operations.is_valid():
                 return Response(operations.errors, status=400)
             operations_serializer = operations.validated_data
@@ -129,7 +132,8 @@ class ChangeFormat(APIView):
     def post(self, request, *args, **kwargs):
         try:
             file_serializer = PhotoSerializer(data=request.FILES)
-            operations = ImageOperationSerializer(data=request.POST)
+            params_data = json.loads(request.POST['params'])
+            operations = ImageOperationSerializer(data=params_data, many=False)
             if not operations.is_valid():
                 return Response(operations.errors, status=400)
             operations_serializer = operations.validated_data
