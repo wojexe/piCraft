@@ -45,15 +45,26 @@ class Resize(APIView):
             if not file_serializer.is_valid():
                 return Response(file_serializer.errors.get("file")[0], status=400)
             # START LOGIC
-            instance = file_serializer.save()
-
-            # END LOGIC
             try:
+                instance = file_serializer.save()
+                img = us.ImageClass()
+                imgFacade = us.ImageFacade()
+                imgFacade.loadImage(instance.file.path, img)
+                imgFacade.addOperation(us.ResizeOperation(width_image, height_image))
+                imgFacade.process(img)
+                imgFacade.generateResponse(img, instance.file.path)
                 s = open(instance.file.path, 'rb')
-                resp = FileResponse(s, status=200)
-            except:
-                return Response('File not found', status=400)
-            return resp
+                response = FileResponse(s)
+                return response
+            except Exception as e:
+                return Response(e, status=400)
+            # END LOGIC
+            # try:
+            #     s = open(instance.file.path, 'rb')
+            #     resp = FileResponse(s, status=200)
+            # except:
+            #     return Response('File not found', status=400)
+            # return resp
         except Exception as e:
             return Response(e, status=400)
 
@@ -84,15 +95,26 @@ class Compress(APIView):
             if not file_serializer.is_valid():
                 return Response(file_serializer.errors.get("file")[0], status=400)
             # START LOGIC
-            instance = file_serializer.save()
-
-            # END LOGIC
             try:
+                instance = file_serializer.save()
+                img = us.ImageClass()
+                imgFacade = us.ImageFacade()
+                imgFacade.loadImage(instance.file.path, img)
+                imgFacade.addOperation(us.CompressOperation(rate_image))
+                imgFacade.process(img)
+                imgFacade.generateResponse(img, instance.file.path)
                 s = open(instance.file.path, 'rb')
-                resp = FileResponse(s, status=200)
-            except:
-                return Response('File not found', status=400)
-            return resp
+                response = FileResponse(s)
+                return response
+            except Exception as e:
+                return Response(e, status=400)
+            
+            # END LOGIC
+            # try:
+            #     s = open(instance.file.path, 'rb')
+            #     resp = FileResponse(s, status=200)
+            # except:
+            #     return Response('File not found', status=400)
         except Exception as e:
             return Response(e, status=400)
 
@@ -112,16 +134,19 @@ class Enhance(APIView):
                 return Response('Wrong name of request', status=400)
             if not file_serializer.is_valid():
                 return Response(file_serializer.errors.get("file")[0], status=400)
-            # START LOGIC
-            instance = file_serializer.save()
-
-            # END LOGIC
             try:
+                instance = file_serializer.save()
+                img = us.ImageClass()
+                imgFacade = us.ImageFacade()
+                imgFacade.loadImage(instance.file.path, img)
+                imgFacade.addOperation(us.EnhanceOperation())
+                imgFacade.process(img)
+                imgFacade.generateResponse(img, instance.file.path)
                 s = open(instance.file.path, 'rb')
-                resp = FileResponse(s, status=200)
-            except:
-                return Response('File not found', status=400)
-            return resp
+                response = FileResponse(s)
+                return response
+            except Exception as e:
+                return Response(e, status=400)
         except Exception as e:
             return Response(e, status=400)
 
@@ -143,15 +168,19 @@ class ChangeFormat(APIView):
                 return Response(f'Format must be in {LEGAL_FORMATS}', status=400)
             if not file_serializer.is_valid():
                 return Response(file_serializer.errors.get("file")[0], status=400)
-            # START LOGIC
-            instance = file_serializer.save()
-            # END LOGIC
             try:
-                s = open(instance.file.path, 'rb')
-                resp = FileResponse(s, status=200)
-            except:
-                return Response('File not found', status=400)
-            return resp
+                instance = file_serializer.save()
+                img = us.ImageClass()
+                imgFacade = us.ImageFacade()
+                imgFacade.loadImage(instance.file.path, img)
+                imgFacade.addOperation(us.ChangeFormatOperation(operations_serializer['format']))
+                imgFacade.process(img)
+                imgFacade.generateResponse(img, instance)
+                s = open(img.getUrl(), 'rb')
+                response = FileResponse(s)
+                return response
+            except Exception as e:
+                return Response(e, status=400)
         except Exception as e:
             return Response(e, status=400)
 
@@ -169,6 +198,10 @@ class Combine(APIView):
             if not operations.is_valid():
                 return Response(operations.errors, status=400)
             instance = file_serializer.save()
+            img = us.ImageClass()
+            imgFacade = us.ImageFacade()
+            imgFacade.loadImage(instance.file.path, img)
+
             try:
                 for obj in operations.validated_data:
                     name = obj.get('name')
@@ -184,7 +217,7 @@ class Combine(APIView):
                             return Response(f'Width and height must be beetwen {MIN_LIMIT_RES} and {MAX_LIMIT_RES}', status=400)
 
                         # START LOGIC
-
+                        imgFacade.addOperation(us.ResizeOperation(width_image, height_image))
                         # END LOGIC
                     elif name == 'compress':
                         rate = obj.get('rate')
@@ -196,13 +229,12 @@ class Combine(APIView):
                             return Response(f'Compression rate must be beetwen {MIN_COMPRESS_RATE} and {MAX_COMPRESS_RATE}', status=400)
 
                         # START LOGIC
-
+                        imgFacade.addOperation(us.CompressOperation(rate_image))
                         # END LOGIC
 
                     elif name == 'enhance':
-                        pass
                         # START LOGIC
-
+                        imgFacade.addOperation(us.EnhanceOperation())
                         # END LOGIC
 
                     elif name == 'change_format':
@@ -210,19 +242,20 @@ class Combine(APIView):
                         if format_image not in LEGAL_FORMATS:
                             return Response(f'Format must be in {LEGAL_FORMATS}', status=400)
                         # START LOGIC
-
+                        imgFacade.addOperation(us.ChangeFormatOperation(format_image))
                         # END LOGIC
 
                     else:
                         return Response('Wrong name of request', status=400)
 
-
-
             except Exception as e:
                 return Response(str(e), status=400)
-            s = open(instance.file.path, 'rb')
-            resp = FileResponse(s)
 
+            imgFacade.process(img)
+            imgFacade.generateResponse(img, instance.file.path)
+            s = open(img.getUrl(), 'rb')
+            response = FileResponse(s)
+            resp = FileResponse(s)
             return resp
         except Exception as e:
             return Response(str(e), status=400)
