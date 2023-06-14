@@ -14,13 +14,15 @@
   import CommittedModifications from "./form/committed_modifications.svelte";
 
   let files: FileList;
-  let selectedModifID = availableModifs[0].id;
-  let selectedParams = structuredClone(modifParams[selectedModifID]);
+  const selected = {
+    modifID: availableModifs[0].id,
+    params: structuredClone(modifParams[availableModifs[0].id])
+  };
   let commitedModifications: Writable<Array<Modification>> = writable([]);
 
   const clearModifs = () => {
-    selectedModifID = availableModifs[0].id;
-    selectedParams = structuredClone(modifParams[selectedModifID]);
+    selected.modifID = availableModifs[0].id;
+    selected.params = structuredClone(modifParams[selected.modifID]);
   };
 
   const clearSubmitted = () => {
@@ -28,13 +30,13 @@
   };
 
   const selectModif = (id: AvailableModifications) => {
-    selectedParams = structuredClone(modifParams[id]);
+    selected.params = structuredClone(modifParams[id]);
   };
 
   const commitModif = () => {
     const mod: Modification = {
-      ...(availableModifs.find((mod) => mod.id === selectedModifID) as any),
-      params: selectedParams
+      ...(availableModifs.find((mod) => mod.id === selected.modifID) as any),
+      params: selected.params
     };
 
     commitedModifications.update((val) => {
@@ -88,15 +90,15 @@
     <label for="select-modification" class="subsection">Choose modifications:</label>
     <select
       id="select-modification"
-      bind:value={selectedModifID}
-      on:change={() => selectModif(selectedModifID)}
+      bind:value={selected.modifID}
+      on:change={() => selectModif(selected.modifID)}
     >
       {#each availableModifs as modif}
         <option value={modif.id}>{modif.display}</option>
       {/each}
     </select>
 
-    <InputParams params={selectedParams} />
+    <InputParams params={selected.params} />
 
     {#if $commitedModifications.length < 4}
       <input type="button" value="+" on:click={() => commitModif()} />

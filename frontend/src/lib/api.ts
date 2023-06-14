@@ -1,7 +1,16 @@
 import { PUBLIC_PICRAFT_API } from "$env/static/public";
 
-export const acceptedFileTypes = ["png", "jpeg", "jpg", "bmp", "heic", "gif", "webp", "tiff"] as const;
-export type AcceptedFileTypes = typeof acceptedFileTypes[number];
+export const acceptedFileTypes = [
+  "png",
+  "jpeg",
+  "jpg",
+  "bmp",
+  "heic",
+  "gif",
+  "webp",
+  "tiff"
+] as const;
+export type AcceptedFileTypes = (typeof acceptedFileTypes)[number];
 
 export const availableModifications = [
   {
@@ -26,43 +35,61 @@ export const availableModifications = [
   }
 ] as const;
 
-export type AvailableModifications = typeof availableModifications[number]["id"];
+export type AvailableModifications = (typeof availableModifications)[number]["id"];
 
 export const modificationParams: Record<AvailableModifications, Array<AnyParam>> = {
   resize: [
     {
-      type: "number", id: "width", display: "Width",
-      defaultValue: 256, min: 8, max: 8196
+      type: "number",
+      id: "width",
+      display: "Width",
+      defaultValue: 256,
+      min: 8,
+      max: 8196
     },
     {
-      type: "number", id: "height", display: "Height",
-      defaultValue: 256, min: 8, max: 8196
+      type: "number",
+      id: "height",
+      display: "Height",
+      defaultValue: 256,
+      min: 8,
+      max: 8196
     }
   ],
   compress: [
     {
-      type: "number", id: "rate", display: "Compression rate",
-      defaultValue: 80, min: 10, max: 100
+      type: "number",
+      id: "rate",
+      display: "Compression rate",
+      defaultValue: 80,
+      min: 10,
+      max: 100
     }
   ],
   enhance: [],
   changeFormat: [
     {
-      type: "select", id: "format", display: "Result format",
-      defaultValue: "jpg", selections: acceptedFileTypes
+      type: "select",
+      id: "format",
+      display: "Result format",
+      defaultValue: "jpg",
+      selections: acceptedFileTypes
     }
   ]
 };
 
 type ModificationFetch = (file: File, modification: Array<Modification>) => Promise<Response>;
 
-export const modificationFetch: ModificationFetch = (file: File, modifications: Array<Modification>) => {
+export const modificationFetch: ModificationFetch = (
+  file: File,
+  modifications: Array<Modification>
+) => {
   let endpoint;
 
   if (modifications.length === 1) {
     endpoint = modifications[0].endpoint;
   } else {
-    endpoint = "combine"
+    endpoint = "combine";
   }
 
   const url = new URL(endpoint, PUBLIC_PICRAFT_API);
@@ -80,15 +107,19 @@ export const modificationFetch: ModificationFetch = (file: File, modifications: 
 
     body = {
       name: modification.endpoint,
-      ...modification.params.reduce((obj, param) =>
-        ({ ...obj, [param.id]: param.value ?? param.defaultValue }), {})
-    }
+      ...modification.params.reduce(
+        (obj, param) => ({ ...obj, [param.id]: param.value ?? param.defaultValue }),
+        {}
+      )
+    };
   } else {
-    body = modifications.map(modification => ({
+    body = modifications.map((modification) => ({
       name: modification.endpoint,
-      ...modification.params.reduce((obj, param) =>
-        ({ ...obj, [param.id]: param.value ?? param.defaultValue }), {})
-    }))
+      ...modification.params.reduce(
+        (obj, param) => ({ ...obj, [param.id]: param.value ?? param.defaultValue }),
+        {}
+      )
+    }));
   }
 
   formData.append("params", JSON.stringify(body));
@@ -97,7 +128,7 @@ export const modificationFetch: ModificationFetch = (file: File, modifications: 
     method: "POST",
     body: formData
   });
-}
+};
 
 export type Modification = {
   id: AvailableModifications;
@@ -126,4 +157,3 @@ export interface SelectParam extends ModificationParam {
 }
 
 export type AnyParam = NumberParam | SelectParam;
-
