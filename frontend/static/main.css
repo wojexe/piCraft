@@ -5,6 +5,8 @@
   --link-visited: hsl(250, 50%, 60%);
   --card-background: hsl(0, 0%, 90%);
   --card-background--light: hsl(0, 0%, 95%);
+
+  --toastBorderRadius: 1rem;
 }
 
 @media (prefers-color-scheme: dark) {
