@@ -30,9 +30,7 @@ class MyTestCase(APITestCase):
     def test_bad_name_resize(self, format):
         uploaded_file = temporary_image(format)
         form_data = {
-            "name": "resiz e",
-            "height": "100",
-            "width": "100",
+            "params": """{"name": "resizee", "width": "330", "height": "32"}""",
             "file": uploaded_file,
         }
         url = "http://127.0.0.1:8000/resize/"
@@ -45,9 +43,7 @@ class MyTestCase(APITestCase):
         uploaded_file = temporary_image(format)
 
         form_data = {
-            "name": "resize",
-            "height": "1",
-            "width": "100",
+            "params": """{"name": "resize", "width": "330", "height": "2"}""",
             "file": uploaded_file,
         }
         url = "http://127.0.0.1:8000/resize/"
@@ -59,9 +55,7 @@ class MyTestCase(APITestCase):
     def test_bad_width_big_resize(self, format):
         uploaded_file = temporary_image(format)
         form_data = {
-            "name": "resize",
-            "height": "100",
-            "width": 100000,
+            "params": """{"name": "resize", "width": "4332432", "height": "32"}""",
             "file": uploaded_file,
         }
         url = "http://127.0.0.1:8000/resize/"
@@ -73,9 +67,7 @@ class MyTestCase(APITestCase):
     def test_bad_not_integer_resize(self, format):
         uploaded_file = temporary_image(format)
         form_data = {
-            "name": "resize",
-            "height": "dsa",
-            "width": "100",
+            "params": """{"name": "resize", "width": "df", "height": "32"}""",
             "file": uploaded_file,
         }
         url = "http://127.0.0.1:8000/resize/"
@@ -87,9 +79,7 @@ class MyTestCase(APITestCase):
     def test_good_resize(self, format):
         uploaded_file = temporary_image(format)
         form_data = {
-            "name": "resize",
-            "height": "100",
-            "width": "100",
+            "params": """{"name": "resize", "width": "330", "height": "32"}""",
             "file": uploaded_file,
         }
         url = "http://127.0.0.1:8000/resize/"
@@ -97,29 +87,25 @@ class MyTestCase(APITestCase):
         response = self.client.post(url, data=form_data, format="multipart")
         self.assertEqual(response.status_code, 200)
 
-    # @parameterized.expand([('jpg'), ('jpeg'), ('png'), ('heic'), ('gif'), ('tiff'), ('bmp'), ('webp')])
-    # def test_bad_file_resize(self, format):
-    #     uploaded_file = temporary_image(format)
-    #     form_data = {
-    #         "name": "resize",
-    #         "height": "100",
-    #         "width": "100",
-    #         "file": uploaded_file,
-    #     }
-    #     url = "http://127.0.0.1:8000/resize/"
+    @parameterized.expand([('jpg'), ('jpeg'), ('png'), ('heic'), ('gif'), ('tiff'), ('bmp'), ('webp')])
+    def test_bad_file_resize(self, format):
+        uploaded_file = temporary_image(format)
+        form_data = {
+            "params": """{"name": "resize", "width": "330", "height": "32"}""",
+            "file": uploaded_file,
+        }
+        url = "http://127.0.0.1:8000/resize/"
 
-    #     response = self.client.post(url, data=form_data, format="multipart")
-    #     self.assertEqual(response.status_code, 200)
+        response = self.client.post(url, data=form_data, format="multipart")
+        self.assertEqual(response.status_code, 200)
     
     # @parameterized.expand([('jpg'), ('jpeg'), ('png'), ('heic'), ('gif'), ('tiff'), ('bmp'), ('webp')])
     # def test_bad_format_resize(self, format):
     #     uploaded_file = temporary_image(format)
     #     form_data = {
-    #         "name": "resize",
-    #         "height": "100",
-    #         "width": "100",
-    #         "file": uploaded_file,
-    #     }
+        # "params": """{"name": "resize", "width": "330", "height": "32"}""",
+        # "file": uploaded_file,
+        # }
     #     url = "http://127.0.0.1:8000/resize/"
 
     #     response = self.client.post(url, data=form_data, format="multipart")
@@ -129,11 +115,9 @@ class MyTestCase(APITestCase):
     # def test_bad_form_data(self, format):
     #     uploaded_file = temporary_image(format)
     #     form_data = {
-    #         "name": "resize",
-    #         "height": "100",
-    #         "width": "100",
-    #         "file": uploaded_file,
-    #     }
+        # "params": """{"name": "resize", "width": "330", "height": "32"}""",
+        # "file": uploaded_file,
+        # }
     #     url = "http://127.0.0.1:8000/resize/"
 
     #     response = self.client.post(url, data=form_data, format="multipart")

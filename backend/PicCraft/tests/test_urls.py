@@ -28,9 +28,7 @@ class MyTestCase(APITestCase):
     def test_bad_request(self):
         uploaded_file = temporary_image()
         form_data = {
-            "name": "resize",
-            "height": "100",
-            "width": "100",
+            "params": '{"name": "resize", "width": "330", "height": "32"}',
             "file": uploaded_file,
         }
         url = "http://127.0.0.1:8000/resizee/"
@@ -41,9 +39,7 @@ class MyTestCase(APITestCase):
     def test_resize(self):
         uploaded_file = temporary_image()
         form_data = {
-            "name": "resize",
-            "height": "100",
-            "width": "100",
+            "params": '{"name": "resize", "width": "330", "height": "32"}',
             "file": uploaded_file,
         }
         url = "http://127.0.0.1:8000/resize/"
@@ -54,8 +50,7 @@ class MyTestCase(APITestCase):
     def test_compress(self):
         uploaded_file = temporary_image()
         form_data = {
-            "name": "compress",
-            "rate": "50",
+            "params": '{"name": "compress", "rate": "50"}',
             "file": uploaded_file,
         }
         url = "http://127.0.0.1:8000/compress/"
@@ -66,7 +61,7 @@ class MyTestCase(APITestCase):
     def test_enhance(self):
         uploaded_file = temporary_image()
         form_data = {
-            "name": "enhance",
+            "params": '{"name": "enhance"}',
             "file": uploaded_file,
         }
         url = "http://127.0.0.1:8000/enhance/"
@@ -77,8 +72,7 @@ class MyTestCase(APITestCase):
     def test_change_format(self):
         uploaded_file = temporary_image()
         form_data = {
-            "name": "change_format",
-            "format": "heic",
+            "params": '{"name": "change_format","format": "png"}',
             "file": uploaded_file,
         }
         url = "http://127.0.0.1:8000/change_format/"

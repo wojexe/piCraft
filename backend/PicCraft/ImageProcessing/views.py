@@ -58,13 +58,7 @@ class Resize(APIView):
                 return response
             except Exception as e:
                 return Response(e, status=400)
-            # END LOGIC
-            # try:
-            #     s = open(instance.file.path, 'rb')
-            #     resp = FileResponse(s, status=200)
-            # except:
-            #     return Response('File not found', status=400)
-            # return resp
+
         except Exception as e:
             return Response(e, status=400)
 
@@ -109,12 +103,6 @@ class Compress(APIView):
             except Exception as e:
                 return Response(e, status=400)
             
-            # END LOGIC
-            # try:
-            #     s = open(instance.file.path, 'rb')
-            #     resp = FileResponse(s, status=200)
-            # except:
-            #     return Response('File not found', status=400)
         except Exception as e:
             return Response(e, status=400)
 
