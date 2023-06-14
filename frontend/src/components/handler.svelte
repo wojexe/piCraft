@@ -1,5 +1,6 @@
 <script lang="ts">
   import { writable, type Writable } from "svelte/store";
+  import { errorToast } from "@/lib/toast";
 
   import {
     acceptedFileTypes,
@@ -47,16 +48,7 @@
     clearModifs();
   };
 
-  const submitForm = async () => {
-    if ($commitedModifications.length === 0) {
-      // this branch should never happen in fact
-      // TODO: tost the user to select an modification and do nothing
-
-      console.log("no modifs");
-
-      return;
-    }
-
+  const submitForm = async (event: SubmitEvent) => {
     try {
       const response = await modificationFetch(files[0], $commitedModifications);
 
@@ -64,23 +56,24 @@
         const blob = await response.blob();
         window.open(URL.createObjectURL(blob));
       } else {
-        // show error with toast
-        const json = await response.json();
+        errorToast(
+          `An error occured with processing the image on the server. [${response.statusText}]`
+        );
 
-        console.error(json);
+        console.error(response.statusText);
       }
     } catch (e) {
-      // handle this error as well
+      errorToast("There was an error sending the request to the server.");
 
-      console.log("rejection", e);
+      console.log(e);
     }
 
-    clearModifs();
+    (event.target as HTMLFormElement).reset();
     clearSubmitted();
   };
 </script>
 
-<form class="handler" on:submit|preventDefault={async () => await submitForm()}>
+<form class="handler" on:submit|preventDefault={async (e) => await submitForm(e)}>
   <div class="frag">
     <label for="file-picker" class="subsection">Select your image:</label>
     <input id="file-picker" type="file" bind:files required accept={acceptedFileTypes.join(",.")} />

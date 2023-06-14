@@ -1,9 +1,13 @@
 <script lang="ts">
   import "normalize.css";
 
+  import { SvelteToast } from "@zerodevx/svelte-toast";
+
   import Header from "@/components/header.svelte";
   import Footer from "@/components/footer.svelte";
 </script>
+
+<SvelteToast />
 
 <Header />
 <div class="content">
