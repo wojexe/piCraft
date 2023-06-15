@@ -55,6 +55,9 @@
       if (response.ok) {
         const blob = await response.blob();
         window.open(URL.createObjectURL(blob));
+
+        (event.target as HTMLFormElement).reset();
+        clearSubmitted();
       } else {
         errorToast(
           `An error occured with processing the image on the server. [${response.statusText}]`
@@ -65,11 +68,8 @@
     } catch (e) {
       errorToast("There was an error sending the request to the server.");
 
-      console.log(e);
+      console.error(e);
     }
-
-    (event.target as HTMLFormElement).reset();
-    clearSubmitted();
   };
 </script>
 
