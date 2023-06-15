@@ -51,11 +51,10 @@ class Resize(APIView):
                 img = us.ImageClass()
                 imgFacade = us.ImageFacade()
                 imgFacade.loadImage(instance.file.path, img)
-                imgFacade.addOperation(
-                    us.ResizeOperation(width_image, height_image))
+                imgFacade.addOperation(us.ResizeOperation(width_image, height_image))
                 imgFacade.process(img)
-                imgFacade.generateResponse(img, instance.file.path)
-                s = open(instance.file.path, 'rb')
+                imgFacade.generateResponse(img)
+                s = open(img.getPath(), 'rb')
 
                 class DeleteFile(FileResponse):
                     def close(self):
@@ -104,8 +103,8 @@ class Compress(APIView):
                 imgFacade.loadImage(instance.file.path, img)
                 imgFacade.addOperation(us.CompressOperation(rate_image))
                 imgFacade.process(img)
-                imgFacade.generateResponse(img, instance.file.path)
-                s = open(instance.file.path, 'rb')
+                imgFacade.generateResponse(img)
+                s = open(img.getPath(), 'rb')
 
                 class DeleteFile(FileResponse):
                     def close(self):
@@ -143,8 +142,8 @@ class Enhance(APIView):
                 imgFacade.loadImage(instance.file.path, img)
                 imgFacade.addOperation(us.EnhanceOperation())
                 imgFacade.process(img)
-                imgFacade.generateResponse(img, instance.file.path)
-                s = open(instance.file.path, 'rb')
+                imgFacade.generateResponse(img)
+                s = open(img.getPath(), 'rb')
 
                 class DeleteFile(FileResponse):
                     def close(self):
@@ -184,15 +183,15 @@ class ChangeFormat(APIView):
                 imgFacade.addOperation(us.ChangeFormatOperation(
                     operations_serializer['format']))
                 imgFacade.process(img)
-                imgFacade.generateResponse(img, instance)
-                s = open(img.getUrl(), 'rb')
+                imgFacade.generateResponse(img)
+                s = open(img.getPath(), 'rb')
 
                 class DeleteFile(FileResponse):
                     def close(self):
                         super(DeleteFile, self).close()
                         instance.delete()
-                        if os.path.isfile(img.getUrl()):
-                            os.remove(img.getUrl())
+                        if os.path.isfile(img.getPath()):
+                            os.remove(img.getPath())
 
                 response = DeleteFile(s)
                 return response
@@ -272,15 +271,15 @@ class Combine(APIView):
                 return Response(str(e), status=400)
 
             imgFacade.process(img)
-            imgFacade.generateResponse(img, instance.file.path)
-            s = open(img.getUrl(), 'rb')
+            imgFacade.generateResponse(img)
+            s = open(img.getPath(), 'rb')
 
             class DeleteFile(FileResponse):
                 def close(self):
                     super(DeleteFile, self).close()
                     instance.delete()
-                    if os.path.isfile(img.getUrl()):
-                        os.remove(img.getUrl())
+                    if os.path.isfile(img.getPath()):
+                        os.remove(img.getPath())
 
             response = DeleteFile(s)
             return response

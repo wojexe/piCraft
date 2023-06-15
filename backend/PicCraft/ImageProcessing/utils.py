@@ -13,18 +13,18 @@ class ImageClass:
 
     def __init__(self):
         self.image = None
-        self.url = None
+        self.path = None
 
     """Open image from path by PILLOW library, and save it to image member"""
 
-    def setUrl(self, path: str) -> None:
-        self.url = path
+    def setPath(self, path: str) -> None:
+        self.path = path
 
-    def getUrl(self) -> str:
-        return self.url
+    def getPath(self) -> str:
+        return self.path
 
     def openImage(self) -> None:
-        self.image = Image.open(self.url)
+        self.image = Image.open(self.path)
 
     def closeImage(self) -> None:
         self.image.close()
@@ -42,24 +42,24 @@ class ImageLoader:
 
     @staticmethod
     def loadImageFromObject(model: Img, img: ImageClass) -> None:
-        img.setUrl(model.file.url)
+        img.setPath(model.file.url)
 
     """Load image from path"""
 
     @staticmethod
     def loadImageFromPath(path: str, img: ImageClass) -> None:
-        img.setUrl(path)
+        img.setPath(path)
 
 
-class GenerateResponse:
+class PrepareGenerateResponse:
     """Generate response class for generating response from image"""
 
     """Generate response from image, we are saving our changes to model file, and then we are returning it as response"""
 
     @staticmethod
-    def generateResponseFromImage(img: ImageClass, url: str):
+    def prepareForGenerateResponseImage(img: ImageClass):
         img.openImage()
-        img.image.save(img.getUrl())
+        img.image.save(img.getPath())
         img.closeImage()
 
 
@@ -96,7 +96,7 @@ class ResizeOperation(Operation):
         img.openImage()
         image = img.getImage()
         image = image.resize((self.width, self.height))
-        image.save(img.getUrl())
+        image.save(img.getPath())
         img.closeImage()
 
 
@@ -116,7 +116,7 @@ class EnhanceOperation(Operation):
         enhancer = ImageEnhance.Sharpness(enhanced_image)
         enhanced_image = enhancer.enhance(1.5)
 
-        enhanced_image.save(img.getUrl())
+        enhanced_image.save(img.getPath())
         img.closeImage()
 
 class CompressOperation(Operation):
@@ -128,7 +128,7 @@ class CompressOperation(Operation):
     def process(self, img: ImageClass):
         img.openImage()
         image = img.getImage()
-        image.save(img.getUrl(), quality=self.quality)
+        image.save(img.getPath(), quality=self.quality)
         img.closeImage()
 
 
@@ -139,7 +139,7 @@ class ChangeFormatOperation(Operation):
         self.format = format
 
     def process(self, img: ImageClass):
-        url=img.getUrl()
+        url=img.getPath()
         dot_index = url.rfind('.')
         if dot_index != -1:
             new_url = url[:dot_index]
@@ -149,7 +149,7 @@ class ChangeFormatOperation(Operation):
         image = img.getImage()
         image.save(new_url + '.' + self.format)
         img.closeImage()
-        img.setUrl(new_url + '.' + self.format)
+        img.setPath(new_url + '.' + self.format)
 
 
 
@@ -159,7 +159,7 @@ class ImageFacade:
     def __init__(self):
         self.imageLoad = ImageLoader()
         self.imageOperations = ImageOperation()
-        self.imageGenerateResponse = GenerateResponse()
+        self.imagePrepareGenerateResponse = PrepareGenerateResponse()
 
     """Add operation to composite class"""
 
@@ -173,8 +173,8 @@ class ImageFacade:
 
     """Generate response from image"""
 
-    def generateResponse(self, img: ImageClass, url: str):
-        self.imageGenerateResponse.generateResponseFromImage(img, url)
+    def generateResponse(self, img: ImageClass):
+        self.imagePrepareGenerateResponse.prepareForGenerateResponseImage(img)
 
     """Load image from path"""
 
