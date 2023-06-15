@@ -1,3 +1,6 @@
-pip install Django
-pip install djangorestframework
-pip install django-cors-headers
+Django
+djangorestframework
+django-cors-headers
+pillow-heif
+pilow
+django-cleanup
