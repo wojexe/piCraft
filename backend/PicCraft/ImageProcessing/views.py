@@ -10,6 +10,7 @@ import imghdr
 from django.http import FileResponse
 from . import utils as us
 from pillow_heif import register_heif_opener
+import os
 register_heif_opener()
 
 MAX_LIMIT_RES = 8196
@@ -32,7 +33,7 @@ class Resize(APIView):
             operations = ImageOperationSerializer(data=params_data, many=False)
             if not operations.is_valid():
                 return Response(operations.errors, status=400)
-            operations_serializer=operations.validated_data
+            operations_serializer = operations.validated_data
             if operations_serializer['name'] != 'resize':
                 return Response('Wrong name of request', status=400)
             try:
@@ -50,11 +51,18 @@ class Resize(APIView):
                 img = us.ImageClass()
                 imgFacade = us.ImageFacade()
                 imgFacade.loadImage(instance.file.path, img)
-                imgFacade.addOperation(us.ResizeOperation(width_image, height_image))
+                imgFacade.addOperation(
+                    us.ResizeOperation(width_image, height_image))
                 imgFacade.process(img)
                 imgFacade.generateResponse(img, instance.file.path)
                 s = open(instance.file.path, 'rb')
-                response = FileResponse(s)
+
+                class DeleteFile(FileResponse):
+                    def close(self):
+                        super(DeleteFile, self).close()
+                        instance.delete()
+
+                response = DeleteFile(s)
                 return response
             except Exception as e:
                 return Response(e, status=400)
@@ -98,11 +106,17 @@ class Compress(APIView):
                 imgFacade.process(img)
                 imgFacade.generateResponse(img, instance.file.path)
                 s = open(instance.file.path, 'rb')
-                response = FileResponse(s)
+
+                class DeleteFile(FileResponse):
+                    def close(self):
+                        super(DeleteFile, self).close()
+                        instance.delete()
+
+                response = DeleteFile(s)
                 return response
             except Exception as e:
                 return Response(e, status=400)
-            
+
         except Exception as e:
             return Response(e, status=400)
 
@@ -131,7 +145,13 @@ class Enhance(APIView):
                 imgFacade.process(img)
                 imgFacade.generateResponse(img, instance.file.path)
                 s = open(instance.file.path, 'rb')
-                response = FileResponse(s)
+
+                class DeleteFile(FileResponse):
+                    def close(self):
+                        super(DeleteFile, self).close()
+                        instance.delete()
+
+                response = DeleteFile(s)
                 return response
             except Exception as e:
                 return Response(e, status=400)
@@ -161,11 +181,20 @@ class ChangeFormat(APIView):
                 img = us.ImageClass()
                 imgFacade = us.ImageFacade()
                 imgFacade.loadImage(instance.file.path, img)
-                imgFacade.addOperation(us.ChangeFormatOperation(operations_serializer['format']))
+                imgFacade.addOperation(us.ChangeFormatOperation(
+                    operations_serializer['format']))
                 imgFacade.process(img)
                 imgFacade.generateResponse(img, instance)
                 s = open(img.getUrl(), 'rb')
-                response = FileResponse(s)
+
+                class DeleteFile(FileResponse):
+                    def close(self):
+                        super(DeleteFile, self).close()
+                        instance.delete()
+                        if os.path.isfile(img.getUrl()):
+                            os.remove(img.getUrl())
+
+                response = DeleteFile(s)
                 return response
             except Exception as e:
                 return Response(e, status=400)
@@ -205,7 +234,8 @@ class Combine(APIView):
                             return Response(f'Width and height must be beetwen {MIN_LIMIT_RES} and {MAX_LIMIT_RES}', status=400)
 
                         # START LOGIC
-                        imgFacade.addOperation(us.ResizeOperation(width_image, height_image))
+                        imgFacade.addOperation(
+                            us.ResizeOperation(width_image, height_image))
                         # END LOGIC
                     elif name == 'compress':
                         rate = obj.get('rate')
@@ -217,7 +247,8 @@ class Combine(APIView):
                             return Response(f'Compression rate must be beetwen {MIN_COMPRESS_RATE} and {MAX_COMPRESS_RATE}', status=400)
 
                         # START LOGIC
-                        imgFacade.addOperation(us.CompressOperation(rate_image))
+                        imgFacade.addOperation(
+                            us.CompressOperation(rate_image))
                         # END LOGIC
 
                     elif name == 'enhance':
@@ -230,7 +261,8 @@ class Combine(APIView):
                         if format_image not in LEGAL_FORMATS:
                             return Response(f'Format must be in {LEGAL_FORMATS}', status=400)
                         # START LOGIC
-                        imgFacade.addOperation(us.ChangeFormatOperation(format_image))
+                        imgFacade.addOperation(
+                            us.ChangeFormatOperation(format_image))
                         # END LOGIC
 
                     else:
@@ -242,8 +274,15 @@ class Combine(APIView):
             imgFacade.process(img)
             imgFacade.generateResponse(img, instance.file.path)
             s = open(img.getUrl(), 'rb')
-            response = FileResponse(s)
-            resp = FileResponse(s)
-            return resp
+
+            class DeleteFile(FileResponse):
+                def close(self):
+                    super(DeleteFile, self).close()
+                    instance.delete()
+                    if os.path.isfile(img.getUrl()):
+                        os.remove(img.getUrl())
+
+            response = DeleteFile(s)
+            return response
         except Exception as e:
             return Response(str(e), status=400)
