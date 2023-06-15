@@ -106,6 +106,7 @@ class EnhanceOperation(Operation):
     def process(self, img: ImageClass):
         img.openImage()
         image = img.getImage()
+        image = image.convert("RGB")
         enhancer = ImageEnhance.Brightness(image)
         enhanced_image = enhancer.enhance(1.2)
 
@@ -114,9 +115,9 @@ class EnhanceOperation(Operation):
 
         enhancer = ImageEnhance.Sharpness(enhanced_image)
         enhanced_image = enhancer.enhance(1.5)
-        img.closeImage()
-        enhanced_image.save(img.getUrl())
 
+        enhanced_image.save(img.getUrl())
+        img.closeImage()
 
 class CompressOperation(Operation):
     """Leaf of composite class for compressing image"""

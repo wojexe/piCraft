@@ -178,7 +178,7 @@ class MyTestCase(APITestCase):
             "params": '{"name": "compress", "rate": "69"}',
             "file": uploaded_file,
         }
-        url = "http://127.0.0.1:8000/resize/"
+        url = "http://127.0.0.1:8000/compress/"
 
         response = self.client.post(url, data=form_data, format="multipart")
         self.assertEqual(response.status_code, 200)
@@ -196,14 +196,14 @@ class MyTestCase(APITestCase):
         response = self.client.post(url, data=form_data, format="multipart")
         self.assertEqual(response.status_code, 400)
 
-    @parameterized.expand([('jpg'), ('jpeg'), ('png'), ('heic'), ('gif'), ('tiff'), ('bmp'), ('webp')])
+    @parameterized.expand([('jpg'), ('jpeg'), ('png'), ('heic'),('gif'), ('tiff'), ('bmp'), ('webp')])
     def test_good_enhance(self, format):
         uploaded_file = temporary_image(format)
         form_data = {
-            "params": '{"name": "enhance"}',
+            "params": """{"name": "enhance"}""",
             "file": uploaded_file,
         }
-        url = "http://127.0.0.1:8000/resize/"
+        url = "http://127.0.0.1:8000/enhance/"
 
         response = self.client.post(url, data=form_data, format="multipart")
         self.assertEqual(response.status_code, 200)
@@ -217,7 +217,7 @@ class MyTestCase(APITestCase):
             "params": '{"name": "changeformat", "format": "png"}',
             "file": uploaded_file,
         }
-        url = "http://127.0.0.1:8000/resize/"
+        url = "http://127.0.0.1:8000/change_format/"
 
         response = self.client.post(url, data=form_data, format="multipart")
         self.assertEqual(response.status_code, 400)
@@ -229,7 +229,7 @@ class MyTestCase(APITestCase):
             "params": '{"name": "change_format", "format": "pns"}',
             "file": uploaded_file,
         }
-        url = "http://127.0.0.1:8000/resize/"
+        url = "http://127.0.0.1:8000/change_format/"
 
         response = self.client.post(url, data=form_data, format="multipart")
         self.assertEqual(response.status_code, 400)
@@ -241,7 +241,7 @@ class MyTestCase(APITestCase):
             "params": '{"name": "change_format", "format": "png"}',
             "file": uploaded_file,
         }
-        url = "http://127.0.0.1:8000/resize/"
+        url = "http://127.0.0.1:8000/change_format/"
 
         response = self.client.post(url, data=form_data, format="multipart")
         self.assertEqual(response.status_code, 200)
