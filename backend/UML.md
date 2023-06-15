@@ -10,11 +10,9 @@ classDiagram
     Operation <|.. ImageOperation
     ImageOperation o-- Operation
     ImageFacade *-- ImageOperation
-    ImageFacade *-- GenerateResponse
+    ImageFacade *-- PrepareGenerateResponse
     ImageFacade *-- ImageLoader
-    GenerateResponse ..> Model
     ImageLoader ..> Model
-    ImageFacade ..> Model
 
     class Model{
         ImageField imageModel
@@ -22,22 +20,26 @@ classDiagram
 
     class ImageClass{
         -ImageTypePIL image
+        -String path
         +init()
+        +setPath(String path)
+        +getPath()
+        +openImage()
+        +closeImage()
         +getImage()
-        +setImage(ImageTypePIL image_)
     }
     class ImageFacade{
         -ImageLoader imageLoad
         -ImageOperation imageOperations
-        -GenerateResponse imageGenerateResponse
+        -PrepareGenerateResponse imagePrepareGenerateResponse
 
         +addOperation(Operation operation)
-        +loadImage(Model Img,Imagetype img)
+        +loadImage(String url,Imagetype img)
         +process(ImageClass img)
-        +generateResponse(ImageClass img, Model Img)
+        +generateResponse(ImageClass img)
     }
-    class GenerateResponse{
-        +generateResponseFromImage(ImageClass img, Model Img)$
+    class PrepareGenerateResponse{
+        +prepareForGenerateResponseImage(ImageClass img)$
     }
     class ImageOperation{
         Operation operations[]
@@ -46,8 +48,8 @@ classDiagram
 
     }
     class ImageLoader{
-        +loadImageFromObject(Model Img,Imagetype img)$
-        +loadImageFromPath(String path,Imagetype img)$
+        +loadImageFromObject(Model Img,ImageClass img)$
+        +loadImageFromPath(String path,ImageClass img)$
 
     }
     class Operation{
@@ -58,7 +60,7 @@ classDiagram
         +process(ImageClass img)
     }
     class CompressOperation{
-        -int percentage
+        -int quality
         +process(ImageClass img)
     }
     class ResizeOperation{
@@ -70,5 +72,6 @@ classDiagram
         -String format
         +process(ImageClass img)
     }
+
 
 ```
