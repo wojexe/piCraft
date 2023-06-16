@@ -10,6 +10,9 @@ The application is composed of two parts: frontend and backend. The frontend emp
 
 The backend processes images sent by the user and responds with the modified images. It does not store any data, for longer than sending back the processed picture.
 
+Each request to the server is first parsed and serialized to work with Python objects. Once the image, along with the parameters, has been properly serialized, it undergoes validation. After the validation process, the image is subjected to the selected processing. If an error occurs at any point, it gets returned returned along with a relevant description. If the program successfully processes the image, the file and the appropriate status are returned.
+
+
 ## [UML diagram](./backend/UML.md "Click to open UML diagram")
 
 ## Use case diagram
