@@ -10,6 +10,12 @@ The application is composed of two parts: frontend and backend. The frontend emp
 
 The backend processes images sent by the user and responds with the modified images. It does not store any data, for longer than sending back the processed picture.
 
+## [UML diagram](./backend/UML.md "Click to open UML diagram")
+
+## Use case diagram
+
+![Use case diagram](./UseCase.svg)
+
 ## Usage
 
 ### Supported filetypes
