@@ -34,8 +34,6 @@ class Resize(APIView):
             if not operations.is_valid():
                 return Response(operations.errors, status=400)
             operations_serializer = operations.validated_data
-            if operations_serializer['name'] != 'resize':
-                return Response('Wrong name of request', status=400)
             try:
                 width_image = int(operations_serializer['width'])
                 height_image = int(operations_serializer['height'])
@@ -70,9 +68,6 @@ class Resize(APIView):
             return Response(e, status=400)
 
 
-# to do check response Content-Type
-# resp.set_headers({'Content-Type': 'multipart/form-data'})
-# resp['Content-Type'] = 'multipart/form-data'
 class Compress(APIView):
     parser_classes = [MultiPartParser]
 
@@ -84,9 +79,6 @@ class Compress(APIView):
             if not operations.is_valid():
                 return Response(operations.errors, status=400)
             operations_serializer = operations.validated_data
-
-            if operations_serializer['name'] != 'compress':
-                return Response('Wrong name of request', status=400)
             try:
                 rate_image = int(operations_serializer['rate'])
             except ValueError:
@@ -131,8 +123,6 @@ class Enhance(APIView):
             if not operations.is_valid():
                 return Response(operations.errors, status=400)
             operations_serializer = operations.validated_data
-            if operations_serializer['name'] != 'enhance':
-                return Response('Wrong name of request', status=400)
             if not file_serializer.is_valid():
                 return Response(file_serializer.errors.get("file")[0], status=400)
             try:
@@ -169,8 +159,6 @@ class ChangeFormat(APIView):
             if not operations.is_valid():
                 return Response(operations.errors, status=400)
             operations_serializer = operations.validated_data
-            if operations_serializer['name'] != 'change_format':
-                return Response('Wrong name of request', status=400)
             if operations_serializer['format'] not in LEGAL_FORMATS:
                 return Response(f'Format must be in {LEGAL_FORMATS}', status=400)
             if not file_serializer.is_valid():

@@ -9,7 +9,7 @@ class PhotoSerializer(serializers.ModelSerializer):
 
 
 class ImageOperationSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=50)
+    name = serializers.CharField(max_length=50,required=False)
     height = serializers.IntegerField(required=False)
     width = serializers.IntegerField(required=False)
     rate = serializers.IntegerField(required=False)
