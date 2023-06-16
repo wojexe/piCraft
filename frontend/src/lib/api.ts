@@ -84,42 +84,29 @@ export const modificationFetch: ModificationFetch = (
   file: File,
   modifications: Array<Modification>
 ) => {
-  let endpoint;
+  let endpoint = modifications[0].endpoint;
 
   if (modifications.length === 1) {
     endpoint = modifications[0].endpoint;
-  } else {
-    endpoint = "combine";
   }
 
   const url = new URL(endpoint, PUBLIC_PICRAFT_API);
 
   const formData = new FormData();
-
   formData.append("file", file);
 
-  // TODO: add more specific type
   type Param = { name: string } & { [key: string]: string };
 
-  let body: Param | Array<Param>;
-  if (modifications.length === 1) {
-    const modification = modifications[0];
+  let body: Param | Array<Param> = modifications.map((modification) => ({
+    name: modification.endpoint,
+    ...modification.params.reduce(
+      (obj, param) => ({ ...obj, [param.id]: param.value ?? param.defaultValue }),
+      {}
+    )
+  }));
 
-    body = {
-      name: modification.endpoint,
-      ...modification.params.reduce(
-        (obj, param) => ({ ...obj, [param.id]: param.value ?? param.defaultValue }),
-        {}
-      )
-    };
-  } else {
-    body = modifications.map((modification) => ({
-      name: modification.endpoint,
-      ...modification.params.reduce(
-        (obj, param) => ({ ...obj, [param.id]: param.value ?? param.defaultValue }),
-        {}
-      )
-    }));
+  if (modifications.length === 1) {
+    body = body[0];
   }
 
   formData.append("params", JSON.stringify(body));
