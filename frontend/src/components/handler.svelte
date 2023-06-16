@@ -76,7 +76,13 @@
 <form class="handler" on:submit|preventDefault={async (e) => await submitForm(e)}>
   <div class="frag">
     <label for="file-picker" class="subsection">Select your image:</label>
-    <input id="file-picker" type="file" bind:files required accept={acceptedFileTypes.join(",.")} />
+    <input
+      id="file-picker"
+      type="file"
+      bind:files
+      required
+      accept={"." + acceptedFileTypes.join(",.")}
+    />
   </div>
 
   <div class="frag">

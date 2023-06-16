@@ -4,7 +4,8 @@
 <div class="intro">
   <h2 class="title">Your go-to image processor</h2>
   <p class="description">
-    Upload an image using the below form and choose any of the listed options to modify your image!
+    Upload an image using the form below and choose any of the listed options to create the picture
+    you want!
   </p>
 </div>
 
